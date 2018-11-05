@@ -126,6 +126,9 @@
 
 
     subroutine cmbmain
+    !> MGCAMB MOD START
+    use MGCAMB
+    !< MGCAMB MOD END
     integer q_ix
     type(EvolutionVars) EV
     !     Timing variables for testing purposes. Used if DebugMsgs=.true. in ModelParams
@@ -179,6 +182,14 @@
     !***note that !$ is the prefix for conditional multi-processor compilation***
     !$ if (ThreadNum /=0) call OMP_SET_NUM_THREADS(ThreadNum)
 
+
+    !> MGCAMB MOD START
+    if ( DebugMGCAMB ) then
+        call MGCAMB_open_cache_files
+    end if
+    !< MGCAMB MOD END
+
+
     if (CP%WantCls) then
         if (DebugMsgs .and. Feedbacklevel > 0) write(*,*) 'Set ',Evolve_q%npoints,' source k values'
 
@@ -208,6 +219,12 @@
         end if
 
     endif !WantCls
+
+    !> MGCAMB MOD START
+    if ( DebugMGCAMB ) then
+        call MGCAMB_close_cache_files
+    end if
+    !< MGCMAB MOD END
 
     ! If transfer functions are requested, set remaining k values and output
     if (CP%WantTransfer .and. global_error_flag==0) then

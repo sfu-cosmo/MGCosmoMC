@@ -127,6 +127,7 @@
     mgcamb_par_cache%omegav = P%omegav
     mgcamb_par_cache%h0     = P%H0
     mgcamb_par_cache%h0_Mpc = P%H0 * (1.d3/c)
+    mgcamb_par_cache%output_root = outroot
     !< MGCAMB MOD END
 
     !> MGCAMB MOD START: reading models and params
@@ -322,7 +323,17 @@
 
     P%MassiveNuMethod  = Ini_Read_Int('massive_nu_approx',Nu_best)
 
+
+!> MGCAMB MOD START: suppress parallelization in debug
+#ifdef DEBUG
+    ! set serial execution, problems creating the files otherwise.
+    ThreadNum      = 1
+#else
+    ! normal operations:
     ThreadNum      = Ini_Read_Int('number_of_threads',ThreadNum)
+#endif
+!< MGCAMB MOD END.
+
     use_spline_template = Ini_Read_Logical('use_spline_template',use_spline_template)
 
     if (do_bispectrum) then

@@ -120,7 +120,7 @@ endif
 CALCFILES = $(OUTPUT_DIR)/Calculator_CAMB.o
 
 #Can use params_H if you prefer more generic parameters
-PARAMETERIZATION = $(OUTPUT_DIR)/CosmologyParameterizations.o
+PARAMETERIZATION = $(OUTPUT_DIR)/CosmologyParameterizations_MG.o
 
 GETDISTFLAGS = $(FFLAGS)
 F90FLAGS = $(FFLAGS) $(IFLAG)../camb/$(OUTPUT_DIR) $(INCLUDE)
@@ -177,7 +177,7 @@ DATAMODULES = $(PLANCKLIKEFILES) $(OUTPUT_DIR)/mpk.o $(OUTPUT_DIR)/wigglez.o \
 
 DATAMODULES += $(OUTPUT_DIR)/wl.o
 
-COSMOFILES = $(OUTPUT_DIR)/CosmologyTypes.o $(OUTPUT_DIR)/CosmoTheory.o $(OUTPUT_DIR)/bbn.o $(OUTPUT_DIR)/Calculator_Cosmology.o \
+COSMOFILES = $(OUTPUT_DIR)/CosmologyTypes_MG.o $(OUTPUT_DIR)/CosmoTheory.o $(OUTPUT_DIR)/bbn.o $(OUTPUT_DIR)/Calculator_Cosmology.o \
 	$(OUTPUT_DIR)/CalcLike_Cosmology.o $(OUTPUT_DIR)/Likelihood_Cosmology.o $(CALCFILES) $(DATAMODULES) $(PARAMETERIZATION) $(LIKEFILES) \
 	$(OUTPUT_DIR)/CosmologyConfig.o
 
@@ -235,10 +235,10 @@ $(OUTPUT_DIR)/driver.o: $(OUTPUT_DIR)/GeneralSetup.o $(OUTPUT_DIR)/CosmologyConf
 
 $(PARAMETERIZATION): $(OUTPUT_DIR)/ParamSet.o $(OUTPUT_DIR)/bbn.o  $(OUTPUT_DIR)/Calculator_Cosmology.o
 $(OUTPUT_DIR)/Calculator_Cosmology.o: $(OUTPUT_DIR)/CosmoTheory.o
-$(OUTPUT_DIR)/CosmoTheory.o: $(OUTPUT_DIR)/CosmologyTypes.o $(OUTPUT_DIR)/likelihood.o
+$(OUTPUT_DIR)/CosmoTheory.o: $(OUTPUT_DIR)/CosmologyTypes_MG.o $(OUTPUT_DIR)/likelihood.o
 $(OUTPUT_DIR)/supernovae.o:  $(OUTPUT_DIR)/Likelihood_Cosmology.o $(SUPERNOVAE)
-$(OUTPUT_DIR)/Calculator_CAMB.o: $(OUTPUT_DIR)/Calculator_Cosmology.o camb
-$(OUTPUT_DIR)/CosmologyTypes.o: $(OUTPUT_DIR)/settings.o $(OUTPUT_DIR)/likelihood.o $(OUTPUT_DIR)/GeneralTypes.o
+$(OUTPUT_DIR)/Calculator_MGCAMB.o: $(OUTPUT_DIR)/Calculator_Cosmology.o camb
+$(OUTPUT_DIR)/CosmologyTypes_MG.o: $(OUTPUT_DIR)/settings.o $(OUTPUT_DIR)/likelihood.o $(OUTPUT_DIR)/GeneralTypes.o
 $(OUTPUT_DIR)/Likelihood_Cosmology.o: $(OUTPUT_DIR)/Calculator_Cosmology.o $(OUTPUT_DIR)/CosmoTheory.o
 $(OUTPUT_DIR)/CMBlikes.o: $(OUTPUT_DIR)/Likelihood_Cosmology.o
 $(OUTPUT_DIR)/CMB_BK_Planck.o: $(OUTPUT_DIR)/CMBlikes.o
