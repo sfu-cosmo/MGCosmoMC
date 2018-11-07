@@ -1,8 +1,10 @@
 ===================
-CosmoMC
+MGCosmoMC
 ===================
 :CosmoMC:  Fortran 2008 parallelized MCMC sampler (general and cosmology)
 :Homepage: http://cosmologist.info/cosmomc/
+
+:MGCosmoMC: patch that implements `MGCAMB <https://github.com/alexzucca90/MGCAMB_tests> ` in CosmoMC
 
 Description and installation
 =============================
