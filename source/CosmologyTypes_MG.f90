@@ -161,12 +161,11 @@
 
         ! DES parametrization
         real(mcp) :: mu0
-        real(mcp) :: simga0
+        real(mcp) :: sigma0
 
         ! DE model parameters
-        real(mcp) :: wDE             !< constant wDE
-        real(mcp) :: w0              !< w0 parameters for DE
-        real(mcp) :: wa              !< wa parameters for DE
+        real(mcp) :: w0DE
+        real(mcp) :: waDE
         !< MGCAMB MOD END
     end Type CMBParams
 

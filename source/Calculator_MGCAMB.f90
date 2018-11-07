@@ -139,12 +139,11 @@
 
     ! DES parametrization
     mu0     = CMB%mu0
-    simga0  = CMB%sigma0
+    sigma0  = CMB%sigma0
 
     ! DE model parameters
-    wDE     = CMB%wDE   !< constant wDE
-    w0      = CMB%w0    !< w0 parameters for DE
-    wa      = CMB%wa
+    w0DE      = CMB%w0DE    !< w0 parameters for DE
+    waDE      = CMB%waDE
     !< MGCAMB MOD END
 
 

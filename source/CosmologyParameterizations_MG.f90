@@ -388,9 +388,8 @@
         CMB%sigma0  = Params(40)
 
         ! DE model parameters
-        CMB%wDE = Params(41)
-        CMB%w0  = Params(42)
-        CMB%wa  = Params(43)
+        CMB%w0DE = Params(41)
+        CMB%waDE  = Params(42)
         !< MGCAMB MOD END
 
         call SetFast(Params,CMB)
@@ -511,9 +510,8 @@
         CMB%sigma0  = Params(40)
 
         ! DE model parameters
-        CMB%wDE = Params(41)
-        CMB%w0  = Params(42)
-        CMB%wa  = Params(43)
+        CMB%w0DE = Params(41)
+        CMB%waDE = Params(42)
 
         ! adjiusting the parameters in case we have f(R)
         if ( MG_flag == 3 .and. QSA_flag == 1) then

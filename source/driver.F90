@@ -88,7 +88,7 @@
         call Ini%Read( 'GRtrans', GRtrans )
         write(*,*) 'GRtrans:', GRtrans
 
-        if ( MG _flag == 1 ) then
+        if ( MG_flag == 1 ) then
             call Ini%Read( 'pure_MG_flag', pure_MG_flag )
 
             if ( pure_MG_flag == 1 ) then
@@ -108,7 +108,7 @@
                 stop 'Choose DE_model properly!'
             end if
 
-        else if ( pure_MG_flag == 2 ) then
+        else if ( MG_flag == 2 ) then
             call Ini%Read( 'alt_MG_flag', alt_MG_flag )
 
             call Ini%Read( 'DE_model', DE_model )
@@ -117,7 +117,7 @@
                 stop 'Choose DE_model properly!'
             end if
 
-        else if ( pure_MG_flag == 3 ) then
+        else if ( MG_flag == 3 ) then
             call Ini%Read( 'QSA_flag', QSA_flag )
 
             if ( QSA_flag > 4 .or. QSA_flag < 1 ) then

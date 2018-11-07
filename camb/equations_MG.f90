@@ -297,6 +297,11 @@
     end function next_nu_nq
 
     recursive subroutine GaugeInterface_EvolveScal(EV,tau,y,tauend,tol1,ind,c,w)
+
+    !> MGCAMB MOD START
+    !use MGCAMB
+    !< MGCAMB MOD END
+
     use ThermoData
     type(EvolutionVars) EV, EVout
     real(dl) c(24),w(EV%nvar,9), y(EV%nvar), yout(EV%nvar), tol1, tau, tauend
@@ -336,7 +341,10 @@
         end do
     end if
 
+    !> MGCAMB MOD START
+    !if (DoLateRadTruncation .and. MG_flag == 0) then
     if (DoLateRadTruncation) then
+    !< MGCAMB MOD END
         if (.not. EV%no_nu_multpoles) & !!.and. .not. EV%has_nu_relativistic .and. tau_switch_nu_massless ==noSwitch)  &
             tau_switch_no_nu_multpoles=max(15/EV%k_buf*AccuracyBoost,min(taurend,matter_verydom_tau))
 
@@ -426,7 +434,10 @@
                     exit
                 end if
             end do
+        !> MGCAMB MOD START:
+        !else if (next_switch==tau_switch_no_nu_multpoles .and. MG_flag==0) then
         else if (next_switch==tau_switch_no_nu_multpoles) then
+        !< MGCAMB MOD END
             !Turn off neutrino hierarchies at late time where slow and not needed.
             ind=1
             EVout%no_nu_multpoles=.true.
@@ -435,7 +446,11 @@
             call CopyScalarVariableArray(y,yout, EV, EVout)
             y=yout
             EV=EVout
+
+        !> MGCAMB MOD START
+        !else if (next_switch==tau_switch_no_phot_multpoles .and. MG_flag == 0) then
         else if (next_switch==tau_switch_no_phot_multpoles) then
+        !< MGCAMB MOD END
             !Turn off photon hierarchies at late time where slow and not needed.
             ind=1
             EVout%no_phot_multpoles=.true.
@@ -1938,6 +1953,7 @@
     if (EV%no_nu_multpoles) then
         !RSA approximation of arXiv:1104.2933, dropping opactity terms in the velocity
         !Approximate total density variables with just matter terms
+        !write(*,*) 'using RSA at a:',a
         if ( tempmodel == 0 ) then
             z=(0.5_dl*dgrho/k + etak)/adotoa
             dz= -adotoa*z - 0.5_dl*dgrho/k
@@ -1945,6 +1961,7 @@
             qr=-4._dl/3*z
             pir=0
         else ! tempmodel /=0
+            ! this is the old RSA..
             clxr=2*(grhoc_t*clxc+grhob_t*clxb)/3/k**2
             qr= clxr*k/sqrt((grhoc_t+grhob_t)/3)*(2/3._dl)
             pir=0
@@ -1957,6 +1974,7 @@
     endif
 
     if (EV%no_phot_multpoles) then
+        !write(*,*) 'using RSA at a:',a
         if  ( tempmodel == 0 ) then
             if (.not. EV%no_nu_multpoles) then
                 z=(0.5_dl*dgrho/k + etak)/adotoa
@@ -2489,6 +2507,8 @@
         !> MGCAMB MOD START
         if ( tempmodel /= 0 ) then
             mgcamb_cache%dgpi_diff = dgpi_diff
+            ! redefining pidot_sum (more accurate)
+            mgcamb_cache%pidot_sum = pidot_sum
         end if
         !< MGCAMB MOD END
 
@@ -2496,7 +2516,7 @@
         if ( MG_flag == 0 ) then
             gpres=gpres_nu+ (grhog_t+grhor_t)/3 +grhov_t*w_lam
         else
-             gpres=gpres_nu+ (grhog_t+grhor_t)/3 + mgcamb_cache%gpresv_t
+            gpres=gpres_nu+ (grhog_t+grhor_t)/3 + mgcamb_cache%gpresv_t
         end if
 
         !> MGCAMB Mmodified OD START: Weyl Potential
@@ -2669,6 +2689,7 @@
                 mgcamb_cache%dgpi_w_sum = dgpi_w_sum
                 mgcamb_cache%dgpi       = dgpi
                 mgcamb_cache%rhoDelta   = dgrho + 3._dl * adotoa * dgq/ k
+                mgcamb_cache%pidot_sum  = pidot_sum
 
                 ! Einstein solutions
                 mgcamb_cache%z          = z
