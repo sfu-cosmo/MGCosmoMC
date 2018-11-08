@@ -14,6 +14,33 @@ deltazrei     {\Delta}z_{\rm re} #width of reionization
 Alens         A_{L}     #lensing potential scaled by sqrt(A_lens)
 Alensf        A^f_L     #amplitude of smoothing power from fiducial models 
 fdm           \epsilon_0 f_d    #CosmoRec dark matter annihilation parameter, 0910.3663
+B1		\beta_1
+B2        	\beta_2 
+lambda1_2	\lambda_1^2  
+lambda2_2    	\lambda_2^2
+ss           	s
+E11  		E_{11}
+E22  		E_{22}
+mu0      	\mu_0
+sigma0   	\Sigma_0
+MGQfix  	Q
+MGRfix  	R
+Qnot     	Q_0
+Rnot     	R_0
+sss      	s
+Linder_gamma 	\gamma_L
+B0 		B_0
+beta_star    	\beta_{\star}
+a_star       	a_{\star}
+xi_star      	\xi_{\star}
+beta0    	\beta_0
+xi0      	\xi_0
+DilR    	r_{\rm dil}
+DIls     	s_{\rm dil}
+F_R0     	f_{R_0}
+FRn      	n_{f}
+w0DE  		w_{0}^{\rm DE}
+waDE   		w_{a}^{\rm DE}
 logA          {\rm{ln}}(10^{10} A_s)
 ns            n_s	    #beware that pivot scale can change in .ini file
 nrun          n_{\rm run}
@@ -34,7 +61,7 @@ s8omegamp5*   \sigma_8 \Omega_m^{0.5}
 s8omegamp25*  \sigma_8 \Omega_m^{0.25}
 s8h5*         \sigma_8/h^{0.5}
 rdragh*       r_{\rm drag} h #Mpc
-rmsdeflect*   \langle d^2\rangle^{1/2}  #rms lensing deflection in arcmin (2<=L<=2000)
+rmsdeflect*   \langle d^2\rangle^{1/2}  #rms lensing deflection in arcmin (2<L<=2000)
 zrei*         z_{\rm re}
 A*            10^9 A_s
 clamp*        10^9 A_s e^{-2\tau}   #parameter determining C_l amplitude

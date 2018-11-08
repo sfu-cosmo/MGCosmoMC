@@ -356,40 +356,43 @@
         CMB%E11 = Params(22)
         CMB%E22 = Params(23)
 
+        ! DES parametrization
+        CMB%mu0     = Params(24)
+        CMB%sigma0  = Params(25)
+
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(24)
-        CMB%MGRfix = Params(25)
+        CMB%MGQfix = Params(26)
+        CMB%MGRfix = Params(27)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(26)
-        CMB%Rnot    = Params(27)
-        CMB%sss     = Params(28)
+        CMB%Qnot    = Params(28)
+        CMB%Rnot    = Params(29)
+        CMB%sss     = Params(30)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(29)
+        CMB%Linder_gamma = Params(31)
+
+        ! f(R) QSA
+        CMB%B0 = Params(32)
 
         ! Symmetron
-        CMB%beta_star   = Params(30)
-        CMB%a_star      = Params(31)
-        CMB%xi_star     = Params(32)
+        CMB%beta_star   = Params(33)
+        CMB%a_star      = Params(34)
+        CMB%xi_star     = Params(35)
 
         ! Dilaton
-        CMB%beta0   = Params(33)
-        CMB%xi0     = Params(34)
-        CMB%DilR    = Params(35)
-        CMB%DIls    = Params(36)
+        CMB%beta0   = Params(36)
+        CMB%xi0     = Params(37)
+        CMB%DilR    = Params(38)
+        CMB%DIls    = Params(39)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(37)
-        CMB%FRn     = Params(38)
-
-        ! DES parametrization
-        CMB%mu0     = Params(39)
-        CMB%sigma0  = Params(40)
+        CMB%F_R0    = Params(40)
+        CMB%FRn     = Params(41)
 
         ! DE model parameters
-        CMB%w0DE = Params(41)
-        CMB%waDE  = Params(42)
+        CMB%w0DE = Params(42)
+        CMB%waDE  = Params(43)
         !< MGCAMB MOD END
 
         call SetFast(Params,CMB)
@@ -406,7 +409,7 @@
     !> MGCAMB MOD START: adjiusting the parameters in case we have f(R)
     if ( MG_flag == 3 .and. QSA_flag == 1) then
         CMB%B1 = 4.d0/3.d0
-        CMB%lambda1_2 = 10.d0**Params(19)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
+        CMB%lambda1_2 = 10.d0**Params(32)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
         CMB%B2 = 0.5d0
         CMB%lambda2_2 = CMB%B1* CMB%lambda1_2
         CMB%ss = 4.d0
@@ -466,7 +469,6 @@
         CMB%iso_cdm_correlated=0
         CMB%Alens=1
 
-
         !> MGCAMB MOD START: Reading the parameters
         CMB%B1          = Params(17)
         CMB%B2          = Params(18)
@@ -478,45 +480,49 @@
         CMB%E11 = Params(22)
         CMB%E22 = Params(23)
 
+        ! DES parametrization
+        CMB%mu0     = Params(24)
+        CMB%sigma0  = Params(25)
+
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(24)
-        CMB%MGRfix = Params(25)
+        CMB%MGQfix = Params(26)
+        CMB%MGRfix = Params(27)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(26)
-        CMB%Rnot    = Params(27)
-        CMB%sss     = Params(28)
+        CMB%Qnot    = Params(28)
+        CMB%Rnot    = Params(29)
+        CMB%sss     = Params(30)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(29)
+        CMB%Linder_gamma = Params(31)
+
+        ! f(R) QSA
+        CMB%B0 = Params(32)
 
         ! Symmetron
-        CMB%beta_star   = Params(30)
-        CMB%a_star      = Params(31)
-        CMB%xi_star     = Params(32)
+        CMB%beta_star   = Params(33)
+        CMB%a_star      = Params(34)
+        CMB%xi_star     = Params(35)
 
         ! Dilaton
-        CMB%beta0   = Params(33)
-        CMB%xi0     = Params(34)
-        CMB%DilR    = Params(35)
-        CMB%DIls    = Params(36)
+        CMB%beta0   = Params(36)
+        CMB%xi0     = Params(37)
+        CMB%DilR    = Params(38)
+        CMB%DIls    = Params(39)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(37)
-        CMB%FRn     = Params(38)
-
-        ! DES parametrization
-        CMB%mu0     = Params(39)
-        CMB%sigma0  = Params(40)
+        CMB%F_R0    = Params(40)
+        CMB%FRn     = Params(41)
 
         ! DE model parameters
-        CMB%w0DE = Params(41)
-        CMB%waDE = Params(42)
+        CMB%w0DE = Params(42)
+        CMB%waDE  = Params(43)
+        !< MGCAMB MOD END
 
         ! adjiusting the parameters in case we have f(R)
         if ( MG_flag == 3 .and. QSA_flag == 1) then
             CMB%B1 = 4.d0/3.d0
-            CMB%lambda1_2 = 10.d0**Params(19)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
+            CMB%lambda1_2 = 10.d0**Params(32)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
             CMB%B2 = 0.5d0
             CMB%lambda2_2 = CMB%B1* CMB%lambda1_2
             CMB%ss = 4.d0

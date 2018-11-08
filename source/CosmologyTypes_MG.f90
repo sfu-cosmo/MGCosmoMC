@@ -132,6 +132,10 @@
         real(mcp) :: E11
         real(mcp) :: E22
 
+        ! DES parametrization
+        real(mcp) :: mu0
+        real(mcp) :: sigma0
+
         ! Q-R parametrization 1
         real(mcp) :: MGQfix
         real(mcp) :: MGRfix
@@ -143,6 +147,9 @@
 
         ! Growth rate gamma
         real(mcp) :: Linder_gamma
+
+        ! QSA f(R)
+        real(mcp) :: B0
 
         ! Symmetron
         real(mcp) :: beta_star
@@ -158,10 +165,6 @@
         ! Hu-Sawicki f(R) gravity
         real(mcp) :: F_R0
         real(mcp) :: FRn
-
-        ! DES parametrization
-        real(mcp) :: mu0
-        real(mcp) :: sigma0
 
         ! DE model parameters
         real(mcp) :: w0DE
