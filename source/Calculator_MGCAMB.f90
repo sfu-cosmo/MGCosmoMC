@@ -99,6 +99,15 @@
     P%Reion%redshift= CMB%zre
     P%Reion%delta_redshift = CMB%zre_delta
 
+    !>MGCAMB MOD START: setting the mgcamb parameter cache
+    mgcamb_par_cache%omegab = P%omegab
+    mgcamb_par_cache%omegac = P%omegac
+    mgcamb_par_cache%omegav = P%omegav
+    mgcamb_par_cache%h0     = P%H0
+    mgcamb_par_cache%h0_Mpc = P%H0 * (1._dl/2.99792458e5_dl)
+    mgcamb_par_cache%output_root = ''
+    !< MGCAMB MOD END
+
     !> MGCAMB MOD START: passing the CMB parameters to CAMB
     B1          = CMB%B1
     B2          = CMB%B2
