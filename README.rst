@@ -6,6 +6,12 @@ MGCosmoMC
 
 :MGCosmoMC: patch that implements `MGCAMB <https://github.com/alexzucca90/MGCAMB_tests>`_ in CosmoMC
 
+Using MGCosmoMC
+================
+Run as it is a usual instance of CosmoMC. Choose the model and the parameter ranges in 
+batch3/params_CMB_MG.ini (or batch2/params_CMB_MG.ini)
+
+
 Description and installation
 =============================
 
