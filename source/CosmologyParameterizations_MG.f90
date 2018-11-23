@@ -384,7 +384,7 @@
         CMB%beta0   = Params(36)
         CMB%xi0     = Params(37)
         CMB%DilR    = Params(38)
-        CMB%DIls    = Params(39)
+        CMB%DilS    = Params(39)
 
         ! Hu-Sawicki f(R) gravity
         CMB%F_R0    = Params(40)
@@ -508,7 +508,7 @@
         CMB%beta0   = Params(36)
         CMB%xi0     = Params(37)
         CMB%DilR    = Params(38)
-        CMB%DIls    = Params(39)
+        CMB%DilS    = Params(39)
 
         ! Hu-Sawicki f(R) gravity
         CMB%F_R0    = Params(40)

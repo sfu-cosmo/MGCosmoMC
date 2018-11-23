@@ -99,14 +99,15 @@
     P%Reion%redshift= CMB%zre
     P%Reion%delta_redshift = CMB%zre_delta
 
-    !>MGCAMB MOD START: setting the mgcamb parameter cache
+    !> MGCAMB MOD START: filling the MGCAMB parameter cache
     mgcamb_par_cache%omegab = P%omegab
     mgcamb_par_cache%omegac = P%omegac
     mgcamb_par_cache%omegav = P%omegav
     mgcamb_par_cache%h0     = P%H0
-    mgcamb_par_cache%h0_Mpc = P%H0 * (1._dl/2.99792458e5_dl)
+    mgcamb_par_cache%h0_Mpc = P%H0 * (1.d0/299792458.d-3)
     mgcamb_par_cache%output_root = ''
     !< MGCAMB MOD END
+
 
     !> MGCAMB MOD START: passing the CMB parameters to CAMB
     B1          = CMB%B1
@@ -140,7 +141,7 @@
     beta0   = CMB%beta0
     xi0     = CMB%xi0
     DilR    = CMB%DilR
-    DilS    = CMB%DIls
+    DilS    = CMB%DilS
 
     ! Hu-Sawicki f(R) gravity
     F_R0    = CMB%F_R0
@@ -154,7 +155,6 @@
     w0DE      = CMB%w0DE    !< w0 parameters for DE
     waDE      = CMB%waDE
     !< MGCAMB MOD END
-
 
     w_lam = CMB%w
     wa_ppf = CMB%wa
@@ -287,6 +287,7 @@
             error=global_error_flag
             return
         end if
+
         !JD 08/13 added so we dont have to fill Cls unless using CMB
         if(CosmoSettings%use_CMB)then
             call this%SetPowersFromCAMB(CMB,Theory)
@@ -413,6 +414,7 @@
     real(mcp) lens_recon_scale, rms
     integer i,j, lmx, lmaxCL
     integer, save, allocatable :: indicesS(:,:), indicesT(:,:)
+
 
     if (.not. allocated(indicesS)) then
         allocate(indicesS(3,3))

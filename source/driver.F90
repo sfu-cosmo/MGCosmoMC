@@ -104,6 +104,8 @@
             ! checking the DE parametrization
             call Ini%Read( 'DE_model', DE_model )
 
+	    write(*,*) 'DE_model:', DE_model
+
             if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 ) then
                 stop 'Choose DE_model properly!'
             end if
@@ -112,6 +114,8 @@
             call Ini%Read( 'alt_MG_flag', alt_MG_flag )
 
             call Ini%Read( 'DE_model', DE_model )
+
+	    write(*,*) 'DE_model:', DE_model
 
             if ( DE_model /= 0 ) then
                 stop 'Choose DE_model properly!'
@@ -125,6 +129,8 @@
             end if
 
             call Ini%Read( 'DE_model', DE_model )
+
+	    write(*,*) 'DE_model:', DE_model
 
             if ( DE_model /= 0 ) then
                 stop 'Choose DE_model properly!'
