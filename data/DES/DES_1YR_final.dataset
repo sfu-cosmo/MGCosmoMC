@@ -16,5 +16,12 @@ measurements[gammat] = DES_1YR_final_gammat.dat
 measurements[wtheta] = DES_1YR_final_wtheta.dat
 nz_file = DES_1YR_final_nz_source.dat
 nz_gal_file = DES_1YR_final_nz_lens.dat
-data_selection = DES_1YR_final_selection.dat
+
+# MGCAMB MOD START: introducing the DES data cuts
+#data_selection = DES_1YR_final_aggressive_cut.dat
+data_selection = DES_1YR_final_standard_cut.dat
+#data_selection = DES_1YR_final_soft_cut.dat
+#data_selection = DES_1YR_final_selection.dat
+# MGCAMB MOD END
+
 nuisance_params = DES.paramnames

@@ -1,9 +1,6 @@
     !Use CAMB
     module Calculator_CAMB
     use CosmologyTypes
-    !> MGCAMB MOD START
-    use MGCAMB
-    !< MGCAMB MOD END
     use CosmoTheory
     use CAMB, only : CAMB_GetResults, CAMB_GetAge, CAMBParams, CAMB_SetDefParams, &
         AccuracyBoost,  Cl_scalar, Cl_tensor, Cl_lensed, outNone, w_lam, wa_ppf,&
@@ -98,64 +95,6 @@
     P%H0 = CMB%H0
     P%Reion%redshift= CMB%zre
     P%Reion%delta_redshift = CMB%zre_delta
-
-    !> MGCAMB MOD START: filling the MGCAMB parameter cache
-    mgcamb_par_cache%omegab = P%omegab
-    mgcamb_par_cache%omegac = P%omegac
-    mgcamb_par_cache%omegav = P%omegav
-    mgcamb_par_cache%h0     = P%H0
-    mgcamb_par_cache%h0_Mpc = P%H0 * (1.d0/299792458.d-3)
-    mgcamb_par_cache%output_root = ''
-    !< MGCAMB MOD END
-
-
-    !> MGCAMB MOD START: passing the CMB parameters to CAMB
-    B1          = CMB%B1
-    B2          = CMB%B2
-    lambda1_2   = CMB%lambda1_2
-    lambda2_2   = CMB%lambda2_2
-    ss          = CMB%ss
-
-    ! Planck Parametrization
-    E11         = CMB%E11
-    E22         = CMB%E22
-
-    ! Q-R parametrization 1
-    MGQfix      = CMB%MGQfix
-    MGRfix      = CMB%MGRfix
-
-    ! Q-R parametrization 2
-    Qnot        = CMB%Qnot
-    Rnot        = CMB%Rnot
-    sss         = CMB%sss
-
-    ! Growth rate gamma
-    Linder_gamma = CMB%Linder_gamma
-
-    ! Symmetron
-    beta_star   = CMB%beta_star
-    a_star      = CMB%a_star
-    xi_star     = CMB%xi_star
-
-    ! Dilaton
-    beta0   = CMB%beta0
-    xi0     = CMB%xi0
-    DilR    = CMB%DilR
-    DilS    = CMB%DilS
-
-    ! Hu-Sawicki f(R) gravity
-    F_R0    = CMB%F_R0
-    FRn     = CMB%FRn
-
-    ! DES parametrization
-    mu0     = CMB%mu0
-    sigma0  = CMB%sigma0
-
-    ! DE model parameters
-    w0DE      = CMB%w0DE    !< w0 parameters for DE
-    waDE      = CMB%waDE
-    !< MGCAMB MOD END
-
     w_lam = CMB%w
     wa_ppf = CMB%wa
     ALens = CMB%ALens
@@ -287,7 +226,6 @@
             error=global_error_flag
             return
         end if
-
         !JD 08/13 added so we dont have to fill Cls unless using CMB
         if(CosmoSettings%use_CMB)then
             call this%SetPowersFromCAMB(CMB,Theory)
@@ -414,7 +352,6 @@
     real(mcp) lens_recon_scale, rms
     integer i,j, lmx, lmaxCL
     integer, save, allocatable :: indicesS(:,:), indicesT(:,:)
-
 
     if (.not. allocated(indicesS)) then
         allocate(indicesS(3,3))
@@ -567,19 +504,15 @@
         call Theory%MPK_WEYL%InitExtrap(k,z,PK,CosmoSettings%extrap_kmax)
 
         !> MOD START: Weyl compatibility with DES data
-        !write(*,*) 'calculating MPK_WEYL_MATTER'
         call Transfer_GetUnsplinedPower(M, PK,transfer_Weyl,transfer_power_var,hubble_units=.false.)
-        ! it seems necessary to set -PK
-        PK = Log(-PK)
+        PK = Log(PK)
         if (any(ieee_is_nan(PK))) then
             error = 1
-
             return
         end if
         allocate(Theory%MPK_WEYL_MATTER)
         call Theory%MPK_WEYL_MATTER%InitExtrap(k,z,PK,CosmoSettings%extrap_kmax)
         !< MOD END
-
 
     end if
 

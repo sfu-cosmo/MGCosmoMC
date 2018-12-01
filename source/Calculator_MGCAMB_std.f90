@@ -566,21 +566,6 @@
         allocate(Theory%MPK_WEYL)
         call Theory%MPK_WEYL%InitExtrap(k,z,PK,CosmoSettings%extrap_kmax)
 
-        !> MOD START: Weyl compatibility with DES data
-        !write(*,*) 'calculating MPK_WEYL_MATTER'
-        call Transfer_GetUnsplinedPower(M, PK,transfer_Weyl,transfer_power_var,hubble_units=.false.)
-        ! it seems necessary to set -PK
-        PK = Log(-PK)
-        if (any(ieee_is_nan(PK))) then
-            error = 1
-
-            return
-        end if
-        allocate(Theory%MPK_WEYL_MATTER)
-        call Theory%MPK_WEYL_MATTER%InitExtrap(k,z,PK,CosmoSettings%extrap_kmax)
-        !< MOD END
-
-
     end if
 
     if (CosmoSettings%use_SigmaR) then

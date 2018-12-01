@@ -35,9 +35,6 @@
         type(TCosmoTheoryPK), allocatable :: NL_MPK
         type(TCosmoTheoryPK), allocatable :: MPK_WEYL
         type(TCosmoTheoryPK), allocatable :: NL_MPK_WEYL
-        !> MGCAMB MOD START: adding the Weyl/matter power spectrum
-        type(TCosmoTheoryPK), allocatable :: MPK_WEYL_MATTER
-        !< MGCAMB MOD END
         type(TCubicSpline),  allocatable :: growth_z !defined as sigma8_vd^2/sigma8
         type(TCubicSpline),  allocatable :: sigma8_z
         type(TCubicSpline),  allocatable :: sigma_R
@@ -141,10 +138,6 @@
     if(allocated(this%NL_MPK)) deallocate(this%NL_MPK)
     if(allocated(this%MPK_WEYL)) deallocate(this%MPK_WEYL)
     if(allocated(this%NL_MPK_WEYL)) deallocate(this%NL_MPK_WEYL)
-    !> MGCAMB MOD START: compatibility with DES
-    ! deallocating mpk_weyl_matter
-    if(allocated(this%MPK_WEYL_MATTER)) deallocate(this%MPK_WEYL_MATTER)
-    !< MGCAMB MOD END
 
     end subroutine FreePK
 
@@ -276,12 +269,7 @@
         write(F%unit) this%MPK%y
         write(F%unit) this%MPK%z
         if(CosmoSettings%use_nonlinear) write(F%unit) this%NL_MPK%z
-        !> MGCAMB MOD START: compatibility with DES lensing
-        if(CosmoSettings%use_WeylPower) then
-            write(F%unit) this%MPK_WEYL%z
-            write(F%unit) this%MPK_WEYL_MATTER%z
-        end if
-        !< MGCAMB MOD END
+        if(CosmoSettings%use_WeylPower) write(F%unit) this%MPK_WEYL%z
         if(CosmoSettings%use_nonlinear.and. CosmoSettings%use_WeylPower) write(F%unit) this%NL_MPK_WEYL%z
         if (CosmoSettings%use_sigmaR) call this%sigma_R%SaveState(F)
     end if
@@ -397,12 +385,6 @@
             allocate(this%MPK_WEYL)
             read(F%unit)temp
             call this%MPK_WEYL%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
-
-            !> MGCAMB MOD START
-            allocate(this%MPK_WEYL_MATTER)
-            read(F%unit)temp
-            call this%MPK_WEYL_MATTER%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
-            !< MGCAMB MOD START
         end if
         if(FileSettings%use_nonlinear.and. FileSettings%use_WeylPower) then
             allocate(this%NL_MPK_WEYL)
