@@ -117,7 +117,7 @@ endif
 #would like to embed this somehow..
 #GIT_HASHTAG = "git log --pretty=format:'%H:%cd' -n 1"
 
-CALCFILES = $(OUTPUT_DIR)/Calculator_CAMB.o
+CALCFILES = $(OUTPUT_DIR)/Calculator_MGCAMB.o
 
 #Can use params_H if you prefer more generic parameters
 PARAMETERIZATION = $(OUTPUT_DIR)/CosmologyParameterizations_MG.o
@@ -260,7 +260,7 @@ $(OUTPUT_DIR)/cliklike_CamSpec.o: $(OUTPUT_DIR)/temp_like.o
 
 $(OUTPUT_DIR)/szcounts.o: $(OUTPUT_DIR)/Likelihood_Cosmology.o
 
-$(OUTPUT_DIR)/Calculator_PICO.o: $(OUTPUT_DIR)/Calculator_CAMB.o $(OUTPUT_DIR)/fpico_interface.o
+$(OUTPUT_DIR)/Calculator_PICO.o: $(OUTPUT_DIR)/Calculator_MGCAMB.o $(OUTPUT_DIR)/fpico_interface.o
 
 $(OUTPUT_DIR)/ElementAbundances.o: $(OUTPUT_DIR)/bbn.o $(OUTPUT_DIR)/Likelihood_Cosmology.o
 
@@ -319,7 +319,7 @@ getdist: directories $(DISTFILES)
 camb:
 	cd ../camb && \
 	$(MAKE) --file=Makefile_main libcamb OUTPUT_DIR=$(OUTPUT_DIR) \
-	RECOMBINATION=$(RECOMBINATION) EQUATIONS=equations_ppf NONLINEAR=halofit_ppf
+	RECOMBINATION=$(RECOMBINATION) EQUATIONS=equations_MG NONLINEAR=halofit_ppf
 
 $(highL)/libhigh.a:
 	cd $(highL); make libhigh.a;
