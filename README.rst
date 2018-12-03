@@ -30,6 +30,7 @@ Derived Parameters
 This version has three derived parameters that depend on the Planck parametrization of the Mu-Gamma functions ( MG_flag = 1, pure_MG_flag = 1, mugamma_par = 2 ). If you use a different model, please modify CosmologyParametrizations_MG.f90 and paramnames/params_CM.paramnames accordingly.
 
 .. raw:: html
-
+    <a href="http://www.sfu.ca/physics/cosmology/"><img src="https://avatars0.githubusercontent.com/u/7880410?s=280&v=4" height="200px"></a>
     <a href="http://www.sussex.ac.uk/astronomy/"><img src="https://cdn.cosmologist.info/antony/Sussex.png" height="170px"></a>
     <a href="http://erc.europa.eu/"><img src="https://erc.europa.eu/sites/default/files/content/erc_banner-vertical.jpg" height="200px"></a>
+    
