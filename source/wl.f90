@@ -489,7 +489,7 @@
     real(mcp) :: time
 
 
-    write(*,*) 'WL calculating theory'
+    !write(*,*) 'WL calculating theory'
 
     time= TimerTime()
 
@@ -519,14 +519,14 @@
         end if
     end if
     !> MGCAMB MOD START: compatibility with DES data
-    if (this%use_weyl .and. .not. this%use_non_linear) then
-        if(allocated(Theory%MPK_WEYL_MATTER) .and. allocated(Theory%MPK_WEYL)) then
-            write(*,*) 'using Weyl-Matter power spectrum'
-	    write(*,*) 'using Weyl-Weyl power spectrum'
-        else
-            write(*,*) 'ERROR! requested Weyl but Weyl P(k) not allocated'
-        end if
-    end if
+    !if (this%use_weyl .and. .not. this%use_non_linear) then
+    !    if(allocated(Theory%MPK_WEYL_MATTER) .and. allocated(Theory%MPK_WEYL)) then
+    !        write(*,*) 'using Weyl-Matter power spectrum'
+	!        write(*,*) 'using Weyl-Weyl power spectrum'
+    !    else
+    !        write(*,*) 'ERROR! requested Weyl but Weyl P(k) not allocated'
+    !    end if
+    !end if
     h = CMB%H0/100
     omm = CMB%omdm+CMB%omb
 

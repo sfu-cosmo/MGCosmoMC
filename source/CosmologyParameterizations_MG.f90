@@ -224,7 +224,16 @@
         derived(12) = Theory%derived_parameters( derived_rdrag )*CMB%H0/100
         derived(13) = Theory%Lensing_rms_deflect
         derived(14) = CMB%zre
-        ix=15
+        !> MGCAMB MOD START: adding derived parameters, this has to be modified for each model!!!
+        !mu_0
+        derived(15) = CMB%E11 * CMB%omv
+        !eta_0
+        derived(16) = CMB%E22 * CMB%omv
+        ! sigma_0
+        derived(17) = 0.5d0 * (1.d0+CMB%E11*CMB%omv) * (2.d0+CMB%E22*CMB%omv)
+        !ix=15
+        ix=18
+        !> MGCAMB MOD END
         derived(ix) = cl_norm*CMB%InitPower(As_index)*1e9
         derived(ix+1) = derived(ix)*exp(-2*CMB%tau)  !A e^{-2 tau}
         ix = ix+2
