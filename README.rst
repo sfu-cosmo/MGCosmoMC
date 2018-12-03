@@ -15,41 +15,19 @@ batch3/params_CMB_MG.ini (or batch2/params_CMB_MG.ini)
 Description and installation
 =============================
 
+MGCosmoMC follows the same installation procedure as CosmoMC.
+
 For full details see the `ReadMe <http://cosmologist.info/cosmomc/readme.html>`_.
 
-Algorithm details
+
+DES 1YR dataset
+===============
+Since there is no MG counterpart of Halofit, nonlinear corrections should be turned off when using MGCosmoMC. Datasets probing nonlinear scales should be used with care and with proper cuts (to avoid nonlinear scales). For the DES 1YR dataset we provide three cuts of the nonlinear regime: soft, standard and aggressive. Choose one of them in data/DES/DES_1YR_final.dataset . Also, be sure to set wl_use_nonlinear = F and wl_use_Weyl = T in batch3/DES.ini . 
+
+
+Derived Parameters
 ==================
-
-See the latest `paper <http://arxiv.org/abs/1304.4473>`_.
-
-GetDist
-===================
-
-CosmoMC includes the GetDist python sample analysis and plotting package, which is
-also `available separately <http://getdist.readthedocs.org/en/latest/>`_.
-
-Branches
-=============================
-
-The master branch contains latest changes to the main release version.
-
-.. image:: https://secure.travis-ci.org/cmbant/CosmoMC.png?branch=master
-  :target: https://secure.travis-ci.org/cmbant/CosmoMC/builds
-
-The devel branch is a development version, using CAMB devel branch which integrates 
-CAMB and CAMB sources (though CAMB sources functions are not available via CosmoMC yet).
-Includes run-time changing of dark energy model between fluid and PPF modes (easily extended).
-Shared general function now taken from the `forutils <https://github.com/cmbant/forutils>`_ library.
-
-.. image:: https://secure.travis-ci.org/cmbant/CosmoMC.png?branch=devel
-  :target: https://secure.travis-ci.org/cmbant/CosmoMC/builds
-
-Both branches now have a travis unit test to check they work with the Planck 2015 data. The test
-does a test install of forutils, CosmoMC and the Planck likelihood code and checks the likelihood is as expected.
-See tests/run_tests.sh for the setup and test code. There are small changes in the absolute likelihood value between branches
-due to small changes in the CAMB version (e.g. implied optical depth changes very slightly due to changes in time sampling).
-
-=============
+This version has three derived parameters that depend on the Planck parametrization of the Mu-Gamma functions ( MG_flag = 1, pure_MG_flag = 1, mugamma_par = 2 ). If you use a different model, please modify CosmologyParametrizations_MG.f90 and paramnames/params_CM.paramnames accordingly.
 
 .. raw:: html
 
