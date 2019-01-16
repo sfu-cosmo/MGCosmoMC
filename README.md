@@ -77,14 +77,11 @@ The aggressive cut is obtained by setting Delta Chi^2 = 1 . The shaded regions i
 
 <p align="center">
 <img src="img/m1aggressive.png" width="500" title="aggressive cut 1" />
-</p>
-<p align="center">
 <img src="img/m2aggressive.png" width="500" title="aggressive cut 2" />
 </p>
+
 <p align="center">
 <img src="img/m3aggressive.png" width="500" title="aggressive cut 3" />
-</p>
-<p align="center">
 <img src="img/m4aggressive.png" width="500" title="aggressive cut 4" />
 </p>
 
@@ -94,14 +91,10 @@ The starndard cut is obtained by setting Delta Chi^2 = 5 . The shaded regions in
 
 <p align="center">
 <img src="img/m1standard.png" width="500" title="standard cut 1" />
-</p>
-<p align="center">
 <img src="img/m2standard.png" width="500" title="standard cut 2" />
 </p>
 <p align="center">
 <img src="img/m3standard.png" width="500" title="standard cut 3" />
-</p>
-<p align="center">
 <img src="img/m4standard.png" width="500" title="standard cut 4" />
 </p>
 
@@ -111,14 +104,10 @@ The soft cut is obtained by setting Delta Chi^2 = 10. The shaded regions in the 
 
 <p align="center">
 <img src="img/m1soft.png" width="500" title="soft cut 1" />
-</p>
-<p align="center">
 <img src="img/m2soft.png" width="500" title="soft cut 2" />
 </p>
 <p align="center">
 <img src="img/m3soft.png" width="500" title="soft cut 3" />
-</p>
-<p align="center">
 <img src="img/m4soft.png" width="500" title="soft cut 4" />
 </p>
 
