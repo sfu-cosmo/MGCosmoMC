@@ -64,7 +64,9 @@ Since in the MG formalism there is no prescription to build a non-linear P(k), w
 
 ## 4. DES 1YR dataset
 
-Since there is no MG counterpart of Halofit, nonlinear corrections should be turned off when using MGCosmoMC. Datasets probing nonlinear scales should be used with care and with proper cuts (to avoid nonlinear scales). For the DES 1YR dataset we provide three cuts of the nonlinear regime: soft, standard and aggressive. Choose one of them in [DES_1YR_final.dataset](data/DES/DES_1YR_final.dataset) . Also, be sure to set ```wl_use_nonlinear = F``` and ```wl_use_Weyl = T```  in [DES.ini](batch3/DES.ini). 
+Since there is no MG counterpart of Halofit, nonlinear corrections should be turned off when using MGCosmoMC. Datasets probing nonlinear scales should be used with care and with proper cuts (to avoid nonlinear scales). For the DES 1YR dataset we provide three cuts of the nonlinear regime: soft, standard and aggressive. Choose one of them in [DES_1YR_final.dataset](data/DES/DES_1YR_final.dataset) . Also, be sure to set ```wl_use_nonlinear = F``` and ```wl_use_Weyl = T```  in [DES.ini](batch3/DES.ini).  
+
+The weak lensing likelihood is modified to use the Weyl potential: the new implementation is in [wl.f90](source/wl.f90), while the default code is kept in [wl_std.f90](source/wl_std.f90)
 
 The method to cut the data is described in our paper and it is based on this [DES paper](https://arxiv.org/abs/1810.02499). 
 
