@@ -225,11 +225,11 @@
         derived(13) = Theory%Lensing_rms_deflect
         derived(14) = CMB%zre
         !> MGCAMB MOD START: adding derived parameters, this has to be modified for each model!!!
-        !mu_0
+        !mu_0-1
         derived(15) = CMB%E11 * CMB%omv
-        !eta_0
+        !eta_0-1
         derived(16) = CMB%E22 * CMB%omv
-        ! sigma_0
+        ! sigma_0-1
         derived(17) = 0.5d0 * (1.d0+CMB%E11*CMB%omv) * (2.d0+CMB%E22*CMB%omv)
         !ix=15
         ix=18

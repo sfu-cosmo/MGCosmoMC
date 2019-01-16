@@ -4,7 +4,7 @@
 </p>
 
 MGCosmoMC 
-===================
+===========
 ## Modified Growth with CosmoMC
 This is the official repository for the MGCosmoMC patch. It implements the patch [MGCAMB](https://github.com/sfu-cosmo/MGCAMB) into the popular Markov Chain Monte Carlo engine [CosmoMC](https://github.com/cmbant/CosmoMC).
 
@@ -14,6 +14,11 @@ This is the official repository for the MGCosmoMC patch. It implements the patch
 * [2. How to install](#2-how-to-install)
 * [3. How to run](#3-how-to-run)
 * [4. DES 1YR dataset](#4-des-1yr-dataset)
+    * [Aggressive cut](#aggressive-cut)
+    * [Standard cut](#standard-cut)
+    * [Soft cut](#soft-cut)
+* [5. Derived Parameters](#derived-parameters)
+* [6. Authors List](#authors-list)
 
 
 ## 1. Introduction
@@ -54,18 +59,95 @@ Before running MGCosmoMC set your model parameters in [```params_CMB_MG.ini```](
 
 ```GRtrans ```  set the scale factor at which MG is switched on. We suggest to set it arger or equal than 0.001. 
 
-Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The DES 1YR dataset is described in Sect.[4](#4-des-1yr-dataset)
+Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The cuts on DES 1YR dataset is described in Sect.[4](#4-des-1yr-dataset)
 
 
 ## 4. DES 1YR dataset
 
 Since there is no MG counterpart of Halofit, nonlinear corrections should be turned off when using MGCosmoMC. Datasets probing nonlinear scales should be used with care and with proper cuts (to avoid nonlinear scales). For the DES 1YR dataset we provide three cuts of the nonlinear regime: soft, standard and aggressive. Choose one of them in [DES_1YR_final.dataset](data/DES/DES_1YR_final.dataset) . Also, be sure to set ```wl_use_nonlinear = F``` and ```wl_use_Weyl = T```  in [DES.ini](batch3/DES.ini). 
 
+The method to cut the data is described in our paper and it is based on this [DES paper](https://arxiv.org/abs/1810.02499). 
+
+The code used to generate this cuts can be found in this [repository]()
+
+### Aggressive Cut
+The aggressive cut is obtained by setting Delta Chi^2 = 1 . The shaded regions in the plots below are removed:
+
+<p align="center">
+<img src="img/m1aggressive.png" width="500" title="aggressive cut 1" />
+</p>
+<p align="center">
+<img src="img/m2aggressive.png" width="500" title="aggressive cut 2" />
+</p>
+<p align="center">
+<img src="img/m3aggressive.png" width="500" title="aggressive cut 3" />
+</p>
+<p align="center">
+<img src="img/m4aggressive.png" width="500" title="aggressive cut 4" />
+</p>
+
+
+### Standard Cut
+The starndard cut is obtained by setting Delta Chi^2 = 5 . The shaded regions in the plots below are removed:
+
+<p align="center">
+<img src="img/m1standard.png" width="500" title="standard cut 1" />
+</p>
+<p align="center">
+<img src="img/m2standard.png" width="500" title="standard cut 2" />
+</p>
+<p align="center">
+<img src="img/m3standard.png" width="500" title="standard cut 3" />
+</p>
+<p align="center">
+<img src="img/m4standard.png" width="500" title="standard cut 4" />
+</p>
+
+
+### Soft Cut
+The soft cut is obtained by setting Delta Chi^2 = 10. The shaded regions in the plots below are removed:
+
+<p align="center">
+<img src="img/m1soft.png" width="500" title="soft cut 1" />
+</p>
+<p align="center">
+<img src="img/m2soft.png" width="500" title="soft cut 2" />
+</p>
+<p align="center">
+<img src="img/m3soft.png" width="500" title="soft cut 3" />
+</p>
+<p align="center">
+<img src="img/m4soft.png" width="500" title="soft cut 4" />
+</p>
+
 
 ## 5. Derived Parameters
-This version has three derived parameters that depend on the *Planck parametrization* of the Mu-Gamma functions ( ```MG_flag = 1```, ```pure_MG_flag = 1```, ```mugamma_par = 2``` ). If you use a different model, please modify [```CosmologyParametrizations_MG.f90```](source/CosmologyParametrizations_MG.f90) and [params_CMB.paramnames](paramnames/params_CMB.paramnames) accordingly.
+This version has three derived parameters that depend on the *Planck parametrization* of the Mu-Gamma functions ( ```MG_flag = 1```, ```pure_MG_flag = 1```, ```mugamma_par = 2``` ). These parameters are set in [```CosmologyParametrizations_MG.f90```](source/CosmologyParametrizations_MG.f90)
+```fortran
+!mu_0-1
+derived(15) = CMB%E11 * CMB%omv
+!eta_0-1
+derived(16) = CMB%E22 * CMB%omv
+! sigma_0-1
+derived(17) = 0.5d0 * (1.d0+CMB%E11*CMB%omv) * (2.d0+CMB%E22*CMB%omv) 
+```
+and [params_CMB.paramnames](paramnames/params_CMB.paramnames)
+```bash
+mu0m1*        \mu_0-1
+gamma0m1*     \gamma_0-1
+sigma0m1*     \Sigma_0-1
+```
+If you use a different parametrization, please modify the files accordingly.
 
+## 6. Authors List
+Main Developer:
+- [Alex Zucca](https://www.sfu.ca/physics/people/profiles/azucca.html) Email: azucca@sfu.ca
 
+Original Code Developers:
+* [Gong-Bo Zhao](http://icosmology.info)
+* [Alireza Hojjati](http://www.phas.ubc.ca/%7Eahojjati/index.html)
+* [Levon Pogosian](http://www.sfu.ca/%7Elevon/)
+* [Alessandra Silvestri](http://wwwhome.lorentz.leidenuniv.nl/%7Esilvestri/Home.html)
 
 
 Repo created and maintained by [Alex Zucca](https://github.com/alexzucca90). If you find any bugs in the code, please contact Alex Zucca at azucca@sfu.ca .
