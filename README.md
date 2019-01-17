@@ -70,7 +70,7 @@ The weak lensing likelihood is modified to use the Weyl potential: the new imple
 
 The method to cut the data is described in our paper and it is based on this [DES paper](https://arxiv.org/abs/1810.02499). 
 
-The code used to generate this cuts can be found in this [repository]()
+The code used to generate this cuts can be found in this [repository](https://github.com/alexzucca90/DES_linear_data)
 
 ### Aggressive Cut
 The aggressive cut is obtained by setting Delta Chi^2 = 1 . The shaded regions in the plots below are removed:
