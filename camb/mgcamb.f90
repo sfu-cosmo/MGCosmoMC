@@ -519,7 +519,7 @@ contains
         ! local variables
         real(dl) :: LKA1 ! \lambda_1^2 k^2 a^s
         real(dl) :: LKA2 ! \lambda_1^2 k^2 a^s
-        real(dl) :: k2, t1,t2,t1dot,t2dot
+        real(dl) :: t1,t2,t1dot,t2dot
         real(dl) :: omm, ommdot
 
         ! mapping beta,m into mu,gamma
@@ -614,7 +614,7 @@ contains
                 betadot = MGCAMB_Betadot( a, mg_par_cache, mg_cache )
                 mdot    = MGCAMB_Mdot( a, mg_par_cache, mg_cache )
 
-                t1 = (2._dl*beta**2._dl)*k2
+                t1 = (2._dl*beta**2._dl)*mg_cache%k2
                 t2 = (m**2._dl)*a**2._dl
                 t1dot = 4._dl*beta*betadot*mg_cache%k2
                 t2dot = (2._dl*a**2._dl)*(m*mdot+ (m**2._dl) *mg_cache%adotoa)
