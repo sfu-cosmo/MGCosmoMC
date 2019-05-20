@@ -87,7 +87,9 @@
     !> MGCAMB MOD START: replace the number of parameters
     ! default code
     !call this%SetTheoryParameterNumbers(16,last_power_index)
-    call this%SetTheoryParameterNumbers(43,last_power_index)
+    !call this%SetTheoryParameterNumbers(43,last_power_index)
+    ! added effective newton's constant
+    call this%SetTheoryParameterNumbers(45,last_power_index)
     !< MGCAMB MOD END
 
     end subroutine TP_Init
@@ -365,43 +367,47 @@
         CMB%E11 = Params(22)
         CMB%E22 = Params(23)
 
+        ! Effective Newton's constant
+        CMB%ga  = Params(24)
+        CMB%nn  = Params(25)
+
         ! DES parametrization
-        CMB%mu0     = Params(24)
-        CMB%sigma0  = Params(25)
+        CMB%mu0     = Params(26)
+        CMB%sigma0  = Params(27)
 
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(26)
-        CMB%MGRfix = Params(27)
+        CMB%MGQfix = Params(28)
+        CMB%MGRfix = Params(29)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(28)
-        CMB%Rnot    = Params(29)
-        CMB%sss     = Params(30)
+        CMB%Qnot    = Params(30)
+        CMB%Rnot    = Params(31)
+        CMB%sss     = Params(32)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(31)
+        CMB%Linder_gamma = Params(33)
 
         ! f(R) QSA
-        CMB%B0 = Params(32)
+        CMB%B0 = Params(34)
 
         ! Symmetron
-        CMB%beta_star   = Params(33)
-        CMB%a_star      = Params(34)
-        CMB%xi_star     = Params(35)
+        CMB%beta_star   = Params(35)
+        CMB%a_star      = Params(36)
+        CMB%xi_star     = Params(37)
 
         ! Dilaton
-        CMB%beta0   = Params(36)
-        CMB%xi0     = Params(37)
-        CMB%DilR    = Params(38)
-        CMB%DilS    = Params(39)
+        CMB%beta0   = Params(38)
+        CMB%xi0     = Params(39)
+        CMB%DilR    = Params(40)
+        CMB%DilS    = Params(41)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(40)
-        CMB%FRn     = Params(41)
+        CMB%F_R0    = Params(42)
+        CMB%FRn     = Params(43)
 
         ! DE model parameters
-        CMB%w0DE = Params(42)
-        CMB%waDE  = Params(43)
+        CMB%w0DE    = Params(44)
+        CMB%waDE    = Params(45)
         !< MGCAMB MOD END
 
         call SetFast(Params,CMB)
@@ -489,43 +495,47 @@
         CMB%E11 = Params(22)
         CMB%E22 = Params(23)
 
+        ! Effective Newton's constant
+        CMB%ga  = Params(24)
+        CMB%nn  = Params(25)
+
         ! DES parametrization
-        CMB%mu0     = Params(24)
-        CMB%sigma0  = Params(25)
+        CMB%mu0     = Params(26)
+        CMB%sigma0  = Params(27)
 
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(26)
-        CMB%MGRfix = Params(27)
+        CMB%MGQfix = Params(28)
+        CMB%MGRfix = Params(29)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(28)
-        CMB%Rnot    = Params(29)
-        CMB%sss     = Params(30)
+        CMB%Qnot    = Params(30)
+        CMB%Rnot    = Params(31)
+        CMB%sss     = Params(32)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(31)
+        CMB%Linder_gamma = Params(33)
 
         ! f(R) QSA
-        CMB%B0 = Params(32)
+        CMB%B0 = Params(34)
 
         ! Symmetron
-        CMB%beta_star   = Params(33)
-        CMB%a_star      = Params(34)
-        CMB%xi_star     = Params(35)
+        CMB%beta_star   = Params(35)
+        CMB%a_star      = Params(36)
+        CMB%xi_star     = Params(37)
 
         ! Dilaton
-        CMB%beta0   = Params(36)
-        CMB%xi0     = Params(37)
-        CMB%DilR    = Params(38)
-        CMB%DilS    = Params(39)
+        CMB%beta0   = Params(38)
+        CMB%xi0     = Params(39)
+        CMB%DilR    = Params(40)
+        CMB%DilS    = Params(41)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(40)
-        CMB%FRn     = Params(41)
+        CMB%F_R0    = Params(42)
+        CMB%FRn     = Params(43)
 
         ! DE model parameters
-        CMB%w0DE = Params(42)
-        CMB%waDE  = Params(43)
+        CMB%w0DE = Params(44)
+        CMB%waDE  = Params(45)
         !< MGCAMB MOD END
 
         ! adjiusting the parameters in case we have f(R)

@@ -120,6 +120,10 @@
     E11         = CMB%E11
     E22         = CMB%E22
 
+    ! Effective Newton's constant
+    ga          = CMB%ga
+    nn          = CMB%nn
+
     ! Q-R parametrization 1
     MGQfix      = CMB%MGQfix
     MGRfix      = CMB%MGRfix

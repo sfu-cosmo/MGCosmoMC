@@ -132,6 +132,10 @@
         real(mcp) :: E11
         real(mcp) :: E22
 
+        ! Effective Newton's constant
+        real(mcp) :: ga
+        real(mcp) ::nn
+
         ! DES parametrization
         real(mcp) :: mu0
         real(mcp) :: sigma0
