@@ -1028,7 +1028,7 @@ contains
             mg_cache%gpresv_t = mg_cache%grhov_t * wDE
         else if (DE_model == 2 ) then
             wnow = w0+(1._dl-a)*wa
-            mg_cache%grhov_t = 3._dl*mg_par_cache%h0_Mpc**2*mg_par_cache%omegav*a**(-1._dl-3._dl*wnow)
+            mg_cache%grhov_t = 3._dl*mg_par_cache%h0_Mpc**2*mg_par_cache%omegav*a**(-1.d0-3.d0*w0DE-3.d0*waDE)*Exp(3.d0*waDE*(a-1.d0))
             mg_cache%gpresv_t = mg_cache%grhov_t * wnow
         else
             write(*,*) 'choose a DE model'
