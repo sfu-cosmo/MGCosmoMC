@@ -13,21 +13,20 @@ cosmomc_debug: BUILD ?= MPI
 getdist: ./source/*.*90
 	cd ./source && make getdist BUILD=$(BUILD)
 
-cosmomc: ./source/*.*90 ./camb/*.*90
+cosmomc: ./source/*.*90 ./camb/fortran/*.*90
 	cd ./source && make cosmomc BUILD=$(BUILD)
 
-cosmomc_debug: ./source/*.*90 ./camb/*.*90
+cosmomc_debug: ./source/*.*90 ./camb/fortran/*.*90
 	cd ./source && make cosmomc_debug OUTPUT_DIR=Debug BUILD=$(BUILD)
 
-camspec: ./source/*.*90 ./camb/*.*90
+camspec: ./source/*.*90 ./camb/fortran/*.*90
 	cd ./source && make highL=../highL PLANCKLIKE=cliklike_CamSpec
 
 clean:
 	cd ./source && make clean
 
-all: cosmomc getdist
+all: cosmomc
 
 delete:
 	rm -f cosmomc
 	rm -f cosmomc_debug
-	rm -f getdist

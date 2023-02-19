@@ -1,22 +1,18 @@
-from __future__ import absolute_import
-from __future__ import print_function
-# AL 2011-2015
 import os
 import numpy as np
-import six
 
 
 class IniError(Exception):
     pass
 
 
-class IniFile(object):
+class IniFile:
     """
     Class for storing option parameter values and reading/saving to file
-    
+
     Unlike standard .ini files, IniFile allows inheritance, in that a .ini file can use
     INCLUDE(..) and DEFAULT(...) to include or override settings in another file (to avoid duplication)
-    
+
     :ivar params: dictionary of name, values stored
     :ivar comments: dictionary of optional comments for parameter names
     """
@@ -27,8 +23,10 @@ class IniFile(object):
         :param settings: a filename of a .ini file to read, or a dictionary of name/values
         :param keep_includes:
              - False: load all INCLUDE and DEFAULT files, making one params dictionary
-             - True: only load settings in main file, and store INCLUDE and DEFAULT entries into defaults and includes filename lists.
-        :param expand_environment_variables: whether to expand $(var) placeholders in parameter values using environment variables
+             - True: only load settings in main file, and store INCLUDE and DEFAULT entries into defaults
+               and includes filename lists.
+        :param expand_environment_variables: whether to expand $(var) placeholders in parameter values
+               using environment variables
         """
 
         self.params = dict()
@@ -38,9 +36,9 @@ class IniFile(object):
         self.includes = []
         self.original_filename = None
         self.expand_environment_variables = expand_environment_variables
-        if isinstance(settings, six.string_types):
+        if isinstance(settings, str):
             self.readFile(settings, keep_includes)
-        elif isinstance(settings, dict):
+        elif settings:
             self.params.update(settings)
 
     def expand_placeholders(self, s):
@@ -62,7 +60,7 @@ class IniFile(object):
                     index = s.index(')')
                     var = s[:index]
                     if var in os.environ:
-                        res = res + os.environ[var]
+                        res += os.environ[var]
             else:
                 res = res + c
             index += 1
@@ -74,11 +72,12 @@ class IniFile(object):
             filedefaults = []
             self.original_filename = filename
             comments = []
-            with open(filename) as textFileHandle:
+            with open(filename, encoding='utf-8-sig') as textFileHandle:
                 # Remove blank lines and comment lines from the python list of lists.
                 for line in textFileHandle:
                     s = line.strip()
-                    if s == 'END': break
+                    if s == 'END':
+                        break
                     if s.startswith('#'):
                         comments.append(s[1:].rstrip())
                         continue
@@ -91,15 +90,18 @@ class IniFile(object):
                         if eq >= 0:
                             key = s[0:eq].strip()
                             if key in self.params:
-                                if if_not_defined: continue
+                                if if_not_defined:
+                                    continue
                                 raise IniError('Error: duplicate key: ' + key + ' in ' + filename)
                             value = s[eq + 1:].strip()
                             if self.expand_environment_variables:
                                 value = self.expand_placeholders(value)
                             self.params[key] = value
                             self.readOrder.append(key)
-                            if len(comments): self.comments[key] = comments
-                    if not s.startswith('#'): comments = []
+                            if len(comments):
+                                self.comments[key] = comments
+                    if not s.startswith('#'):
+                        comments = []
 
             if keep_includes:
                 self.includes += fileincludes
@@ -131,15 +133,18 @@ class IniFile(object):
         :param filename:  name of file to save to
         """
 
-        if not filename: filename = self.original_filename
-        if not filename: raise IniError('No filename for iniFile.saveFile()')
-        with open(filename, 'w') as f:
+        if not filename:
+            filename = self.original_filename
+        if not filename:
+            raise IniError('No filename for iniFile.saveFile()')
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(str(self))
 
     def fileLines(self):
 
         def asIniText(value):
-            if type(value) == type(''): return value
+            if isinstance(value, type('')):
+                return value
             if type(value) == bool:
                 return str(value)[0]
             return str(value)
@@ -168,7 +173,8 @@ class IniFile(object):
         return self.params
 
     def delete_keys(self, keys):
-        for k in keys: self.params.pop(k, None)
+        for k in keys:
+            self.params.pop(k, None)
 
     def _undefined(self, name):
         raise IniError('parameter not defined: ' + name)
@@ -219,9 +225,11 @@ class IniFile(object):
         default = getattr(instance, name, default)
         setattr(instance, name, self.asType(name, type(default), default, allowEmpty=allowEmpty))
 
-    def getAttr(self, instance, name, default=None):
+    def getAttr(self, instance, name, default=None, comment=None):
         val = getattr(instance, name, default)
         self.params[name] = val
+        if comment:
+            self.comments[name] = comment
 
     def bool(self, name, default=False):
         """
@@ -232,7 +240,8 @@ class IniFile(object):
         """
         if self.isSet(name):
             s = self.params[name]
-            if isinstance(s, bool): return s
+            if isinstance(s, bool):
+                return s
             if s[0] == 'T':
                 return True
             elif s[0] == 'F':
@@ -336,7 +345,7 @@ class IniFile(object):
                 return [tp(x) for x in self.params[name]]
 
         s = self.string(name, default)
-        if isinstance(s, six.string_types):
+        if isinstance(s, str):
             if tp is not None:
                 return [tp(x) for x in s.split()]
             return s.split()
@@ -398,6 +407,6 @@ class IniFile(object):
 
     def relativeFileName(self, name, default=None):
         s = self.string(name, default)
-        if self.original_filename is not None:
+        if not os.path.isabs(s) and self.original_filename is not None:
             return os.path.join(os.path.dirname(self.original_filename), s)
         return s

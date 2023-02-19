@@ -35,9 +35,8 @@
         type(TCosmoTheoryPK), allocatable :: NL_MPK
         type(TCosmoTheoryPK), allocatable :: MPK_WEYL
         type(TCosmoTheoryPK), allocatable :: NL_MPK_WEYL
-        !> MGCAMB MOD START: adding the Weyl/matter power spectrum
-        type(TCosmoTheoryPK), allocatable :: MPK_WEYL_MATTER
-        !< MGCAMB MOD END
+        type(TCosmoTheoryPK), allocatable :: MPK_WEYL_CROSS
+        type(TCosmoTheoryPK), allocatable :: NL_MPK_WEYL_CROSS
         type(TCubicSpline),  allocatable :: growth_z !defined as sigma8_vd^2/sigma8
         type(TCubicSpline),  allocatable :: sigma8_z
         type(TCubicSpline),  allocatable :: sigma_R
@@ -78,8 +77,8 @@
     end if
 
     end function PowerAt
-    
-    subroutine PowerAtArr(PK,k,z, n, outpower) 
+
+    subroutine PowerAtArr(PK,k,z, n, outpower)
     class(TCosmoTheoryPK) PK
     integer, intent(in) :: n
     real(mcp), intent(in) :: k(n),z(n)
@@ -101,7 +100,7 @@
     end if
 
     end subroutine PowerAtArr
-    
+
 
     subroutine TCosmoTheoryPK_InitExtrap(this, x, y, z, extrap_kmax)
     class(TCosmoTheoryPK):: this
@@ -141,10 +140,8 @@
     if(allocated(this%NL_MPK)) deallocate(this%NL_MPK)
     if(allocated(this%MPK_WEYL)) deallocate(this%MPK_WEYL)
     if(allocated(this%NL_MPK_WEYL)) deallocate(this%NL_MPK_WEYL)
-    !> MGCAMB MOD START: compatibility with DES
-    ! deallocating mpk_weyl_matter
-    if(allocated(this%MPK_WEYL_MATTER)) deallocate(this%MPK_WEYL_MATTER)
-    !< MGCAMB MOD END
+    if(allocated(this%MPK_WEYL_CROSS)) deallocate(this%MPK_WEYL_CROSS)
+    if(allocated(this%NL_MPK_WEYL_CROSS)) deallocate(this%NL_MPK_WEYL_CROSS)
 
     end subroutine FreePK
 
@@ -276,13 +273,14 @@
         write(F%unit) this%MPK%y
         write(F%unit) this%MPK%z
         if(CosmoSettings%use_nonlinear) write(F%unit) this%NL_MPK%z
-        !> MGCAMB MOD START: compatibility with DES lensing
         if(CosmoSettings%use_WeylPower) then
             write(F%unit) this%MPK_WEYL%z
-            write(F%unit) this%MPK_WEYL_MATTER%z
+            write(F%unit) this%MPK_WEYL_CROSS%z
         end if
-        !< MGCAMB MOD END
-        if(CosmoSettings%use_nonlinear.and. CosmoSettings%use_WeylPower) write(F%unit) this%NL_MPK_WEYL%z
+        if(CosmoSettings%use_nonlinear.and. CosmoSettings%use_WeylPower) then
+            write(F%unit) this%NL_MPK_WEYL%z
+            write(F%unit) this%NL_MPK_WEYL_CROSS%z
+        end if
         if (CosmoSettings%use_sigmaR) call this%sigma_R%SaveState(F)
     end if
 
@@ -368,7 +366,7 @@
 
     if (FileSettings%use_matterpower) then
         if (CosmoSettings%use_matterpower) then
-            if (any(FileSettings%power_redshifts/=CosmoSettings%power_redshifts)) &
+            if (any(abs(FileSettings%power_redshifts-CosmoSettings%power_redshifts)>1e-6)) &
                 & call MpiStop('TCosmoTheoryPredictions_ReadTheory: power_redshifts differ - check')
             if (CosmoSettings%extrap_kmax /= FileSettings%extrap_kmax) &
                 call MpiStop('TCosmoTheoryPredictions_ReadTheory: extrap_kmax differ - check')
@@ -395,19 +393,20 @@
         end if
         if(FileSettings%use_WeylPower) then
             allocate(this%MPK_WEYL)
+            allocate(this%MPK_WEYL_CROSS)
             read(F%unit)temp
             call this%MPK_WEYL%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
-
-            !> MGCAMB MOD START
-            allocate(this%MPK_WEYL_MATTER)
             read(F%unit)temp
-            call this%MPK_WEYL_MATTER%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
-            !< MGCAMB MOD START
+            call this%MPK_WEYL_CROSS%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
+
         end if
         if(FileSettings%use_nonlinear.and. FileSettings%use_WeylPower) then
             allocate(this%NL_MPK_WEYL)
+            allocate(this%NL_MPK_WEYL_CROSS)
             read(F%unit)temp
             call this%NL_MPK_WEYL%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
+            read(F%unit)temp
+            call this%NL_MPK_WEYL_CROSS%InitExtrap(k,z,temp,CosmoSettings%extrap_kmax)
         end if
 
         if (FileSettings%use_sigmaR) then

@@ -1,0 +1,10 @@
+#This is the sdss DR16 QSO BAO measurement
+name = sdss_DR16_QSO_BAO
+
+measurement_type = DM_over_rs bao_Hz_rs
+
+#number of bao data points 
+num_bao = 2
+
+bao_measurements_file = sdss_DR16_QSO_BAO.txt
+bao_invcov_file = sdss_DR16_QSO_BAO_invcov.txt

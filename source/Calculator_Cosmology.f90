@@ -21,7 +21,7 @@
     procedure :: Hofz
     procedure :: Hofz_Hunit
     procedure :: AngularDiameterDistance
-    procedure :: ComovingRadialDistance    
+    procedure :: ComovingRadialDistance
     procedure :: ComovingRadialDistanceArr
     procedure :: AngularDiameterDistance2
     procedure :: LuminosityDistance
@@ -35,6 +35,7 @@
     procedure :: GetOpticalDepth
     procedure :: SetBackgroundTheoryData
     procedure :: SetParamsForBackground
+    procedure :: SetCurrentPoint
     procedure :: ReadImportanceParams => TCosmologyCalculator_ReadImportanceParams
     end Type TCosmologyCalculator
 
@@ -50,35 +51,43 @@
 
     end subroutine TCosmologyCalculator_ReadImportanceParams
 
-    subroutine GetNewBackgroundData(this, CMB,Theory,error)
+    subroutine GetNewBackgroundData(this, CMB, Info, Theory,error)
     class(TCosmologyCalculator) :: this
     class(CMBParams) :: CMB
+    class(TTheoryIntermediateCache) :: Info
     class(TCosmoTheoryPredictions) Theory
     integer error
 
-    call this%SetParamsForBackground(CMB)
+    call this%SetParamsForBackground(CMB, Info)
     select type (Param => this%Config%Parameterization)
     class is (TCosmologyParameterization)
         if (.not. Param%late_time_only) then
-            call this%SetBackgroundTheoryData(CMB, Theory, error)
+            call this%SetBackgroundTheoryData(CMB, Info, Theory, error)
         end if
-        class default
+    class default
         call MpiStop('TCosmologyCalculator: Must have CosmologyParameterization')
     end select
 
     end subroutine GetNewBackgroundData
 
-    subroutine SetParamsForBackground(this,CMB)
+    subroutine SetParamsForBackground(this,CMB, Info)
     class(TCosmologyCalculator) :: this
+    class(TTheoryIntermediateCache), target :: Info
     class(CMBParams) CMB
 
     call this%ErrorNotImplemented('SetParamsForBackground')
 
     end subroutine SetParamsForBackground
 
-    subroutine SetBackgroundTheoryData(this, CMB,Theory,error)
+    subroutine SetCurrentPoint(this, Params)
+    class(TCosmologyCalculator), target :: this
+    class(TCalculationAtParamPoint), target :: Params
+    end subroutine SetCurrentPoint
+
+    subroutine SetBackgroundTheoryData(this, CMB,Info, Theory,error)
     class(TCosmologyCalculator) :: this
     class(CMBParams) :: CMB
+    class(TTheoryIntermediateCache) :: Info
     class(TCosmoTheoryPredictions) Theory
     integer error
 
@@ -113,7 +122,7 @@
     end subroutine GetNewPowerData
 
     subroutine GetTheoryForImportance(this, CMB, Theory, error)
-    class(TCosmologyCalculator) :: this
+    class(TCosmologyCalculator), target :: this
     class(TTheoryParams) :: CMB
     class(TTheoryPredictions) :: Theory
     integer error
@@ -129,7 +138,7 @@
     end subroutine GetTheoryForImportance
 
     subroutine GetCosmoTheoryForImportance(this, CMB, Theory, error)
-    class(TCosmologyCalculator) :: this
+    class(TCosmologyCalculator), target :: this
     class(CMBParams) :: CMB
     class(TCosmoTheoryPredictions) :: Theory
     integer error
@@ -197,18 +206,18 @@
     ComovingRadialDistance = 0
 
     end function ComovingRadialDistance
-    
+
     subroutine ComovingRadialDistanceArr(this, z, arr, n)
     class(TCosmologyCalculator) :: this
     integer, intent(in) :: n
     real(mcp), intent(IN) :: z(n)
     real(mcp), intent(out) :: arr(n)
-    
+
     call this%ErrorNotImplemented('ComovingRadialDistanceArr')
     arr= 0
 
     end subroutine ComovingRadialDistanceArr
-    
+
 
     real(mcp) function AngularDiameterDistance2(this, z1, z2)
     class(TCosmologyCalculator) :: this

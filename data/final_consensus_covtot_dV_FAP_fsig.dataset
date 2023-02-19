@@ -1,0 +1,8 @@
+name = BAOALAM
+
+measurement_type = DV_over_rs F_AP f_sigma8 DV_over_rs F_AP f_sigma8 DV_over_rs F_AP f_sigma8
+
+num_bao = 9
+
+bao_measurements_file = final_consensus_results_dV_FAP_fsig.txt
+bao_invcov_file = final_consensus_incovtot_dV_FAP_fsig.txt

@@ -1,0 +1,8 @@
+name = eBOSSDR14Q_tomo
+
+measurement_type = DA_rd_fid_over_rs Hz_rs_over_rd_fid f_sigma8 DA_rd_fid_over_rs Hz_rs_over_rd_fid f_sigma8 DA_rd_fid_over_rs Hz_rs_over_rd_fid f_sigma8 DA_rd_fid_over_rs Hz_rs_over_rd_fid f_sigma8
+
+num_bao = 12
+
+bao_measurements_file = sdss_DR14_RSD_bao_4bin_GB_result.txt
+bao_invcov_file = sdss_DR14_RSD_bao_4bin_GB_invcov.txt

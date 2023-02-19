@@ -21,6 +21,8 @@ lambda2_2    	\lambda_2^2
 ss           	s
 E11  		E_{11}
 E22  		E_{22}
+ga              ga
+nn              nn
 mu0      	\mu_0
 sigma0   	\Sigma_0
 MGQfix  	Q
@@ -32,7 +34,7 @@ Linder_gamma 	\gamma_L
 B0 		B_0
 beta_star    	\beta_{\star}
 a_star       	a_{\star}
-xi_star      	\xi_{\star}
+xi_star     \xi_{\star}
 beta0    	\beta_0
 xi0      	\xi_0
 DilR    	r_{\rm dil}
@@ -41,6 +43,39 @@ F_R0     	f_{R_0}
 FRn      	n_{f}
 w0DE  		w_{0}^{\rm DE}
 waDE   		w_{a}^{\rm DE}
+MGCAMB_Mu_idx(1)		\mu_1
+MGCAMB_Mu_idx(2)		\mu_2
+MGCAMB_Mu_idx(3)		\mu_3
+MGCAMB_Mu_idx(4)		\mu_4
+MGCAMB_Mu_idx(5)		\mu_5
+MGCAMB_Mu_idx(6)		\mu_6
+MGCAMB_Mu_idx(7)		\mu_7
+MGCAMB_Mu_idx(8)		\mu_8
+MGCAMB_Mu_idx(9)		\mu_9
+MGCAMB_Mu_idx(10)		\mu_{10}
+MGCAMB_Mu_idx(11)		\mu_{11}
+MGCAMB_Sigma_idx(1)		\Sigma_1
+MGCAMB_Sigma_idx(2)		\Sigma_2
+MGCAMB_Sigma_idx(3)		\Sigma_3
+MGCAMB_Sigma_idx(4)		\Sigma_4
+MGCAMB_Sigma_idx(5)		\Sigma_5
+MGCAMB_Sigma_idx(6)		\Sigma_6
+MGCAMB_Sigma_idx(7)		\Sigma_7
+MGCAMB_Sigma_idx(8)		\Sigma_8
+MGCAMB_Sigma_idx(9)		\Sigma_9
+MGCAMB_Sigma_idx(10)	\Sigma_{10}
+MGCAMB_Sigma_idx(11)	\Sigma_{11}
+Funcofw(1)				\Omega^X_1
+Funcofw(2)				\Omega^X_2
+Funcofw(3)				\Omega^X_3
+Funcofw(4)				\Omega^X_4
+Funcofw(5)				\Omega^X_5
+Funcofw(6)				\Omega^X_6
+Funcofw(7)				\Omega^X_7
+Funcofw(8)				\Omega^X_8
+Funcofw(9)				\Omega^X_9
+Funcofw(10)				\Omega^X_{10}
+Funcofw(11)				\Omega^X_{11}
 logA          {\rm{ln}}(10^{10} A_s)
 ns            n_s	    #beware that pivot scale can change in .ini file
 nrun          n_{\rm run}
@@ -63,9 +98,7 @@ s8h5*         \sigma_8/h^{0.5}
 rdragh*       r_{\rm drag} h #Mpc
 rmsdeflect*   \langle d^2\rangle^{1/2}  #rms lensing deflection in arcmin (2<L<=2000)
 zrei*         z_{\rm re}
-mu0m1*	      \mu_0-1
-gamma0m1*     \gamma_0-1
-sigma0m1*     \Sigma_0-1
+lgm_inv*      logm_{\star}^{-1}
 A*            10^9 A_s
 clamp*        10^9 A_s e^{-2\tau}   #parameter determining C_l amplitude
 DL40*         D_{40}   #L(L+1)C_L/2pi at L=40 in muK^2

@@ -16,6 +16,11 @@
     use szcounts !Anna
     use wl
     use ElementAbundances
+!>MGCAMB MOD START
+! GB's edit starts
+    use smoothness_prior
+! GB's edit ends
+!>MGCAMB MOD END
     class(TSettingIni), intent(in) :: Ini
 
     CosmoSettings%get_sigma8 = Ini%Read_Logical('get_sigma8',.false.)
@@ -37,6 +42,11 @@
     call SZLikelihood_Add(DataLikelihoods, Ini) !Anna
 
     call WLLikelihood_Add(DataLikelihoods, Ini)
+!>MGCAMB MOD START
+! GB's edit starts
+    call SMPriorLikelihood_Add(DataLikelihoods, Ini)
+! GB's edit ends
+!>MGCAMB MOD END
 
     end subroutine SetDataLikelihoods
 

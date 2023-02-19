@@ -11,6 +11,7 @@
     use RandUtils
     !> MGCAMB MOD START
     use MGCAMB
+    use smoothness_prior
     !< MGCAMB MOD END
     use bbn
     implicit none
@@ -104,24 +105,27 @@
             ! checking the DE parametrization
             call Ini%Read( 'DE_model', DE_model )
 
-	    write(*,*) 'DE_model:', DE_model
+	        write(*,*) 'DE_model:', DE_model
 
-            if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 ) then
+            if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 .and. DE_model /= 3) then
                 stop 'Choose DE_model properly!'
             end if
+
+            MGDE_pert = Ini%Read_Logical('MGDE_pert',.false.)
+            write(*,*) 'MGDE_Pert:', MGDE_pert
 
         else if ( MG_flag == 2 ) then
             call Ini%Read( 'alt_MG_flag', alt_MG_flag )
 
             call Ini%Read( 'DE_model', DE_model )
 
-	    write(*,*) 'DE_model:', DE_model
+	        write(*,*) 'DE_model:', DE_model
 
             if ( DE_model /= 0 ) then
                 stop 'Choose DE_model properly!'
             end if
 
-        else if ( MG_flag == 3 ) then
+        else if ( MG_flag == 3) then
             call Ini%Read( 'QSA_flag', QSA_flag )
 
             if ( QSA_flag > 4 .or. QSA_flag < 1 ) then
@@ -130,14 +134,110 @@
 
             call Ini%Read( 'DE_model', DE_model )
 
-	    write(*,*) 'DE_model:', DE_model
+	        write(*,*) 'DE_model:', DE_model
 
             if ( DE_model /= 0 ) then
                 stop 'Choose DE_model properly!'
             end if
 
+        else if ( MG_flag == 4) then
+	        call Ini%Read('CDM_flag', CDM_flag)
+
+            if(CDM_flag == 1) then
+                write(*,*) 'CDM QSA'
+                call Ini%Read( 'QSA_flag', QSA_flag )
+                if ( QSA_flag > 4 .or. QSA_flag < 2 ) then
+                    stop 'Choose QSA_flag properly!'
+                end if
+            else
+                write(*,*) 'Please choose CDM_flag properly'
+            end if
+
+	        call Ini%Read( 'DE_model', DE_model )
+	        write(*,*) 'DE_model:', DE_model
+
+            if ( DE_model /= 0 ) then
+                stop 'Choose DE_model properly!'
+            end if
+
+        else if ( MG_flag == 5) then
+
+	        call Ini%Read('test_flag', test_flag)
+
+	        if( test_flag== 1) then
+		        write(*,*) 'pure MG models'
+                call Ini%Read( 'pure_MG_flag', pure_MG_flag )
+                if ( pure_MG_flag == 1 ) then
+                    call Ini%Read( 'mugamma_par', mugamma_par )
+                else if ( pure_MG_flag == 2 ) then
+                    call Ini%Read( 'muSigma_par', muSigma_par)
+                else
+                    stop 'Choose pure_MG_flag properly!'
+                end if
+
+                ! checking the DE parametrization
+                call Ini%Read( 'DE_model', DE_model )
+
+                write(*,*) 'DE_model:', DE_model
+
+                if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 .and. DE_model /= 3) then
+                    stop 'Choose DE_model properly!'
+                end if
+
+                MGDE_pert = Ini%Read_Logical('MGDE_pert',.false.)
+
+            else if(test_flag==2) then
+		        write(*,*) 'alternative MG models'
+                
+                call Ini%Read( 'alt_MG_flag', alt_MG_flag )
+
+                call Ini%Read( 'DE_model', DE_model )
+
+                write(*,*) 'DE_model:', DE_model
+
+                if ( DE_model /= 0 ) then
+                    stop 'Choose DE_model properly!'
+                end if
+
+            else if(test_flag==3) then
+                
+		        write(*,*) 'standard QSA for all-matter case'
+                call Ini%Read( 'QSA_flag', QSA_flag )
+
+                if ( QSA_flag > 4 .or. QSA_flag < 1 ) then
+                    stop 'Choose QSA_flag properly!'
+                end if
+
+                call Ini%Read( 'DE_model', DE_model )
+
+                write(*,*) 'DE_model:', DE_model
+
+                if ( DE_model /= 0 ) then
+                    stop 'Choose DE_model properly!'
+                end if
+
+            else if(test_flag==4) then
+                write(*,*) 'reconstruction models'
+
+                call Ini%Read( 'DE_model', DE_model )
+                write(*,*) 'DE_model:', DE_model
+                prior_filename  = Ini%Read_String('prior_filename')
+                if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 .and. DE_model /= 3) then
+                    stop 'Choose DE_model properly!'
+                end if
+	        else
+		        stop 'Please write your own model'
+	        end if
+
+        else if ( MG_flag == 6 ) then
+            call Ini%Read( 'DE_model', DE_model )
+            write(*,*) 'DE_model:', DE_model
+            prior_filename  = Ini%Read_String('prior_filename')
+            if ( DE_model /= 0 .and. DE_model /=1 .and. DE_model /= 2 .and. DE_model /= 3) then
+                stop 'Choose DE_model properly!'
+            end if
         else
-            stop 'Choose MG_flag properly!'
+	        stop 'Choose MG_flag properly!'
         end if
     end if
     !< MGCAMB MOD END
@@ -311,7 +411,7 @@
     end if
 
     if (estimate_propose_matrix .and. Setup%action == action_MCMC .or. Setup%action==action_Hessian) then
-        call MpiStop('hessian evaluation disabled for now')
+        call MpiStop('hessian evaluation disabled for now (it never worked very well anyway)')
         !        ! slb5aug04 with AL updates
         !        if (MpiRank==0) then
         !            EstParams = Params

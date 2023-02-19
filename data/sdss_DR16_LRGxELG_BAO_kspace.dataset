@@ -1,0 +1,11 @@
+#This is the sdss DR16 LRGxELG BAO measurement
+# 2007.09011  
+name = sdss_DR16_LRGxELG_BAO_kspace
+
+measurement_type = DM_over_rs DH_over_rs DM_over_rs DH_over_rs
+
+#number of bao data points 
+num_bao = 4
+
+bao_measurements_file = sdss_DR16_LRGxELG_BAO_kspace.txt
+bao_invcov_file = sdss_DR16_LRGxELG_BAO_kspace_invcov.txt

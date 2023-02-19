@@ -69,7 +69,7 @@ class batchArgs(object):
                                      help='directory/ies containing getdist output plot_data')
             self.parser.add_argument('--paramNameFile', default='clik_latex.paramnames',
                                      help=".paramnames file for custom labels for parameters")
-            self.parser.add_argument('--paramList', default=None,
+            self.parser.add_argument('--param_list', default=None,
                                      help=".paramnames file listing specific parameters to include (only)")
             self.parser.add_argument('--size_inch', type=float, default=None, help='output subplot size in inches')
             self.parser.add_argument('--nx', default=None, help='number of plots per row')
@@ -79,16 +79,14 @@ class batchArgs(object):
         self.args = args
         if args.batchPath:
             self.batch = batchjob.readobject(args.batchPath)
-            if self.batch is None: raise Exception('batchPath %s does not exist or is not initialized with makeGrid.py'%args.batchPath)
+            if self.batch is None:
+                raise Exception('batchPath %s does not exist or is not initialized with makeGrid.py' % args.batchPath)
             if self.doplots:
                 import getdist.plots as plots
                 from getdist import paramnames
 
                 if args.paramList is not None: args.paramList = paramnames.ParamNames(args.paramList)
-                if args.plot_data is not None:
-                    g = plots.GetDistPlotter(plot_data=args.plot_data)
-                else:
-                    g = plots.GetDistPlotter(chain_dir=self.batch.batchPath)
+                g = plots.GetDistPlotter(chain_dir=self.batch.batchPath)
                 if args.size_inch is not None: g.settings.setWithSubplotSize(args.size_inch)
                 return self.batch, self.args, g
             else:
@@ -104,7 +102,7 @@ class batchArgs(object):
 
     def jobItemWanted(self, jobItem):
         return not jobItem.isImportanceJob and (
-            self.args.importance is None) or jobItem.isImportanceJob and self.wantImportance(jobItem)
+                self.args.importance is None) or jobItem.isImportanceJob and self.wantImportance(jobItem)
 
     def nameMatches(self, jobItem):
         if self.args.name is None: return True
@@ -114,7 +112,7 @@ class batchArgs(object):
 
     def groupMatches(self, jobItem):
         return (self.args.group is None or jobItem.group in self.args.group) and (
-            self.args.skip_group is None or not jobItem.group in self.args.skip_group)
+                self.args.skip_group is None or not jobItem.group in self.args.skip_group)
 
     def dataMatches(self, jobItem):
         if self.args.musthave_data is not None and not jobItem.data_set.hasAll(self.args.musthave_data): return False
@@ -138,9 +136,9 @@ class batchArgs(object):
     def filteredBatchItems(self, wantSubItems=True, chainExist=False):
         for jobItem in self.batch.items(wantImportance=not self.args.noimportance, wantSubItems=wantSubItems):
             if (not chainExist or jobItem.chainExists()) and (
-                                    self.jobItemWanted(jobItem) and self.nameMatches(jobItem) and self.paramsMatch(
-                                    jobItem) and self.dataMatches(jobItem)
-                                    and self.groupMatches(jobItem)): yield (jobItem)
+                    self.jobItemWanted(jobItem) and self.nameMatches(jobItem) and self.paramsMatch(
+                jobItem) and self.dataMatches(jobItem)
+                    and self.groupMatches(jobItem)): yield (jobItem)
 
     def sortedParamtagDict(self, chainExist=True):
         items = dict()
@@ -156,5 +154,3 @@ class batchArgs(object):
             items += [jobItem for jobItem in batch if (jobItem.datatag == data or jobItem.normed_data == tag)
                       and (not getDistExists or jobItem.getDistExists())]
         return items
-
-

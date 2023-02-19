@@ -401,7 +401,8 @@
         Err = .false.
         do while (F%ReadNextContentLine(S,InLine))
             read(InLine,*, iostat=status) l, tmp_ar
-            if (status/=0) call MpiStop('ReadBinWindows: error reading line '//trim(filename))
+            if (status/=0) &
+                call MpiStop('ReadBinWindows: error reading line '//trim(S))
             if (l>=this%pcl_lmin .and. l <=this%pcl_lmax) then
                 binWindows%W(l,:,i) = tmp_ar
             else
@@ -1012,7 +1013,7 @@
             call this%MapPair_to_Theory_i_j(order,i,j,f1,f2)
             CL%theory_i = f1
             CL%theory_j = f2
-            allocate(CL%CL(this%pcl_lmin:this%pcl_lmax), source=0._mcp)
+            allocate(CL%CL(this%pcl_lmin:this%pcl_lmax),source=0._mcp)
         end do
     end do
 
@@ -1024,7 +1025,7 @@
     class(TCosmoTheoryPredictions) :: Theory
     class(TMapCrossPowerSpectrum), pointer, intent(out) :: Cls(:,:)
     real(mcp), intent(in) :: DataParams(:)
-    integer i,j
+    integer i,j,k, ix1, ix2
 
     Cls => this%MapCls
     do i=1, this%nmaps_required
@@ -1040,10 +1041,21 @@
             !    end associate
             !end associate
             if (allocated(Theory%Cls(Cls(i,j)%theory_i ,Cls(i,j)%theory_j)%CL)) then
-                Cls(i,j)%CL(this%pcl_lmin:this%pcl_lmax) = &
-                    Theory%Cls(Cls(i,j)%theory_i ,Cls(i,j)%theory_j)%CL(this%pcl_lmin:this%pcl_lmax)
+                !Code here is gfortran 8 regression workaround for
+                !   Cls(i,j)%CL(this%pcl_lmin:this%pcl_lmax) = &
+                !    Theory%Cls(Cls(i,j)%theory_i ,Cls(i,j)%theory_j)%CL(this%pcl_lmin:this%pcl_lmax)
+                !see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88685
+
+                ix1 = Cls(i,j)%theory_i
+                ix2 = Cls(i,j)%theory_j
+                do k=this%pcl_lmin, this%pcl_lmax
+                    Cls(i,j)%CL(k) = Theory%Cls(ix1, ix2)%CL(k)
+                end do
             else
-                Cls(i,j)%CL(this%pcl_lmin:this%pcl_lmax) = 0
+                do k=this%pcl_lmin, this%pcl_lmax
+                    Cls(i,j)%CL(k)=0
+                end do
+                !Cls(i,j)%CL(this%pcl_lmin:this%pcl_lmax) = 0
             end if
         end do
     end do
@@ -1178,8 +1190,8 @@
     chisq =0
 
     call this%GetTheoryMapCls(Theory, TheoryCls, DataParams)
-
-    !$OMP PARALLEL DO DEFAULT(SHARED),PRIVATE(i,j,C,vecp), reduction(+:chisq)
+    !FIRSTPRIVATE is a workaround for ifort issues on some machines
+    !$OMP PARALLEL DO DEFAULT(SHARED),PRIVATE(i,j), FIRSTPRIVATE(C,vecp), reduction(+:chisq)
     do bin = this%bin_min, this%bin_max
         if (this%binned .or. bin_test) then
             if (this%like_approx == like_approx_fullsky_exact) call mpiStop('CMBLikes: exact like cannot be binned!')

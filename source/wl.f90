@@ -2,17 +2,19 @@
     ! e.g. for DES 1 YR
     !AL 2018, following exactly the same approximations as in the DES papers
     !(can only use Weyl potential for lensing)
-
-    ! AZ 2018, can use Weyl for lensing and galaxy lensing
+    ! MR 2019 update to use Weyl potential for galaxy-lensing cross
 
     module wl
+
     use settings
     use CosmologyTypes
     use CosmoTheory
     use Calculator_Cosmology
     use Likelihood_Cosmology
     use Interpolation
+
     implicit none
+
     private
 
     integer, parameter :: measurement_xip = 1, measurement_xim = 2, &
@@ -48,6 +50,7 @@
         logical :: use_weyl !Wether to get lensing directly from the Weyl potential
 
         real(mcp), private, allocatable :: data_vector(:) !derived based on cuts
+        real(mcp), private, allocatable :: corr_theory(:,:,:,:)
         real(mcp), private, allocatable :: ls_bessel(:)
         integer, private, allocatable :: ls_cl(:)
         real(mcp), private, allocatable :: j0s(:,:), j2s(:,:), j4s(:,:)
@@ -56,12 +59,15 @@
         real(mcp) :: acc = 1._mcp !accuracy parameter
 
     contains
+
     procedure :: LogLike => WL_LnLike
     procedure :: ReadIni => WL_ReadIni
+    procedure :: WriteLikelihoodData => WL_WriteLikelihoodData
     procedure, private :: make_vector
     procedure, private :: calc_theory
     procedure, private :: cl2corr
     procedure, private :: init_bessel_integration
+
     end type WLLikelihood
 
     integer, parameter :: intrinsic_alignment_none=1, intrinsic_alignment_DES1YR=2
@@ -69,6 +75,7 @@
         [character(Ini_Enumeration_Len)::'none','DES1YR']
 
     public WLLikelihood, WLLikelihood_Add
+
     contains
 
     subroutine WLLikelihood_Add(LikeList, Ini)
@@ -200,13 +207,13 @@
     this%want_type = .false.
     this%want_type(this%used_measurement_types) = .true.
 
-    !> MGCAMB MOD START: compatibility with DES
-    !if (this%use_weyl .and. any(this%want_type(measurement_gammat:measurement_wtheta))) then
-    if (this%use_non_linear .and. this%use_weyl .and. any(this%want_type(measurement_gammat:measurement_wtheta))) then
-        !call MPIstop('currently wl_use_weyl option can only be used with weak lensing data')
-        call MPIstop('currently wl_use_weyl and non_linear option can only be used with weak lensing data')
-    !< MGCAMB MOD END.
-    end if
+     !> MGCAMB MOD START: compatibility with DES
+     !if (this%use_weyl .and. any(this%want_type(measurement_gammat:measurement_wtheta))) then
+     if (this%use_non_linear .and. this%use_weyl .and. any(this%want_type(measurement_gammat:measurement_wtheta))) then
+         !call MPIstop('currently wl_use_weyl option can only be used with weak lensing data')
+         call MPIstop('currently wl_use_weyl and non_linear option can only be used with weak lensing data')
+     !< MGCAMB MOD END.
+     end if
 
     call this%loadParamNames(Ini%ReadRelativeFileName('nuisance_params',NotFoundFail=.true.))
 
@@ -304,6 +311,59 @@
 
     end subroutine WL_ReadIni
 
+    subroutine WL_WriteLikelihoodData(this,Theory,DataParams, root)
+
+    implicit none
+
+    class(WLLikelihood) :: this
+    class(TTheoryPredictions) :: Theory
+    real(mcp), intent(in) :: DataParams(:)
+    character(LEN=*), intent(in) :: root
+    real(mcp), allocatable :: corr_theory(:,:,:,:)
+    type(TTextFile) F
+    integer :: i, j, k, tp, type_ix
+
+    F%IntegerFormat = '(*(I6))'
+    ! create the output file:
+    call F%CreateFile( trim(root)//'_'//trim(this%getTag())//'.theory' )
+    ! write the header with the comment:
+    call F%WriteInLine('#   theta')
+    do type_ix = 1, this%nmeasurement_types
+        tp = this%measurement_types(type_ix)
+        do j = 1, this%num_type(type_ix)
+            call F%WriteInLine( '   '//trim(measurement_names(tp))&
+                &//trim(integer_to_string( this%bin_pairs(1,j,type_ix) ))&
+                &//trim(integer_to_string( this%bin_pairs(2,j,type_ix) )) )
+        end do
+    end do
+    call F%NewLine()
+    ! write the theory prediciton:
+    do i=1, this%num_theta_bins
+        call F%WriteInLine(this%theta_bins(i))
+        do type_ix = 1, this%nmeasurement_types
+            tp = this%measurement_types(type_ix)
+            do j = 1, this%num_type(type_ix)
+                call F%WriteInLine( this%corr_theory(i, this%bin_pairs(1,j,type_ix), this%bin_pairs(2,j,type_ix), tp ) )
+            end do
+        end do
+        call F%NewLine()
+    end do
+    ! close file:
+    call F%Close()
+
+    contains
+
+    ! helper to convert number to string:
+    function integer_to_string( number )
+    implicit none
+    integer, intent(in) :: number               !< Input integer number
+    character(10)       :: integer_to_string    !< Output string with the number
+    write( integer_to_string, '(i10)' ) number
+    integer_to_string = TRIM(ADJUSTL( integer_to_string ))
+    end function integer_to_string
+
+    end subroutine WL_WriteLikelihoodData
+
     function WL_LnLike(this, CMB, Theory, DataParams)
     use MatrixUtils
     Class(WLLikelihood) :: this
@@ -312,54 +372,11 @@
     real(mcp) :: DataParams(:)
     real(mcp) WL_LnLike
     real(mcp) vec(this%num_used)
-    real(mcp), allocatable :: corr_theory(:,:,:,:)
 
-    !> MOD TEST
-    !integer :: i
-    !< MOD TEST
-
-    allocate(corr_theory, source = this%corr_data*0)
-    call this%calc_theory(CMB,Theory, corr_theory, DataParams)
-    call this%make_vector(corr_theory, vec)
-
-    !> MOD TEST
-    !if (this%use_non_linear) then
-	!    if (this%use_weyl) then
-	!        open(unit = 1, file = 'DES_theory_vec_nonlinear_weyl.dat', status='unknown')
-    !    else
-    !        open(unit = 1, file = 'DES_theory_vec_nonlinear.dat', status='unknown')
-	!    end if
-    !else
-	!    if (this%use_weyl) then
-	!        open(unit = 1, file = 'DES_theory_vec_linear_weyl.dat', status='unknown')
-	!    else
-    !	    open(unit = 1, file = 'DES_theory_vec_linear.dat', status='unknown')
-	!    end if
-    !end if
-    !open(unit = 2, file = 'DES_inv_cov.dat',    status='unknown', recl = 999999)
-    !open(unit = 4, file = 'DES_cosmoPar.dat', status = 'unknown')
-    !open(unit = 5, file = 'DES_vec_data.dat', status = 'unknown')
-    !do i = 1, size(vec)
-    !    write(1,*) vec(i)
-    !    write(5,*) this%data_vector(i)
-    !    write(2,*) this%invcov(i,:)
-    !end do
-
-    !close(1)
-    !close(2)
-    !close(5)
-    !write(4,*) 'H0', CMB%H
-    !write(4,*) 'ombh2', CMB%ombh2
-    !write(4,*) 'tau',        CMB%tau
-    !write(4,*) 'omk',	CMB%Omk
-    !write(4,*) 'w',       CMB%w
-    !write(4,*) 'wa',       CMB%wa
-    !write(4,*) 'nnu',	CMB%nnu
-    !write(4,*) 'omnuh2',CMB%omnuh2
-    !write(4,*) 'omch2', CMB%omch2
-    !close(4)
-    !pause
-    !< MOD TEST
+    if (allocated(this%corr_theory) ) deallocate(this%corr_theory)
+    allocate(this%corr_theory, source = this%corr_data*0)
+    call this%calc_theory(CMB,Theory, this%corr_theory, DataParams)
+    call this%make_vector(this%corr_theory, vec)
 
     vec = vec - this%data_vector
     WL_LnLike = Matrix_QuadForm(this%invcov,vec) / 2
@@ -462,7 +479,7 @@
     Class(TCosmoTheoryPredictions), target :: Theory
     real(mcp), intent(out) :: corrs(:,:,:,:)
     real(mcp), intent(in) :: DataParams(:)
-    type(TCosmoTheoryPK), pointer :: PK
+    type(TCosmoTheoryPK), pointer :: PK, WPK, MWPK
     real(mcp) h, omm
     real(mcp), allocatable :: chis(:), dchis(:), Hs(:), D_growth(:)
     real(mcp) zshift
@@ -482,14 +499,10 @@
     real(mcp) lens_photoz_errors(this%num_gal_bins)
 
     real(mcp) :: tmparr(size(this%ls_cl))
-    real(mcp) :: kharr(this%num_z_p),zarr(this%num_z_p), powers(this%num_z_p), tmp(this%num_z_p)
-    !> MOD START: compatibility with DES data
-    real(mcp) :: powers_dw(this%num_z_p), powers_ww(this%num_z_p), tmp_dw(this%num_z_p), tmp_ww(this%num_z_p)
-    !< MOD END
+    real(mcp) :: kharr(this%num_z_p),zarr(this%num_z_p), powers(this%num_z_p), &
+        wpowers(this%num_z_p), mwpowers(this%num_z_p), tmp(this%num_z_p), &
+        wtmp(this%num_z_p), mwtmp(this%num_z_p)
     real(mcp) :: time
-
-
-    !write(*,*) 'WL calculating theory'
 
     time= TimerTime()
 
@@ -504,29 +517,20 @@
     lens_photoz_errors = DataParams(i+1:i+this%num_gal_bins)
     i = i + this%num_gal_bins
     source_photoz_errors = DataParams(i+1:i+this%num_z_bins)
-
     if (this%use_non_linear) then
-        if (this%use_weyl) then
-            PK => Theory%NL_MPK_WEYL
-        else
-            PK => Theory%NL_MPK
+        PK  => Theory%NL_MPK
+        if ( this%use_weyl ) then
+            WPK  => Theory%NL_MPK_WEYL
+            MWPK => Theory%NL_MPK_WEYL_CROSS
         end if
     else
-        if (this%use_weyl) then
-            PK => Theory%MPK_WEYL
-        else
-            PK => Theory%MPK
+        PK  => Theory%MPK
+        if ( this%use_weyl ) then
+            WPK  => Theory%MPK_WEYL
+            MWPK => Theory%MPK_WEYL_CROSS
         end if
     end if
-    !> MGCAMB MOD START: compatibility with DES data
-    !if (this%use_weyl .and. .not. this%use_non_linear) then
-    !    if(allocated(Theory%MPK_WEYL_MATTER) .and. allocated(Theory%MPK_WEYL)) then
-    !        write(*,*) 'using Weyl-Matter power spectrum'
-	!        write(*,*) 'using Weyl-Weyl power spectrum'
-    !    else
-    !        write(*,*) 'ERROR! requested Weyl but Weyl P(k) not allocated'
-    !    end if
-    !end if
+
     h = CMB%H0/100
     omm = CMB%omdm+CMB%omb
 
@@ -577,7 +581,8 @@
         end do
     end do
     !$OMP END PARALLEL DO
-    !$OMP PARALLEL DO DEFAULT(SHARED), PRIVATE(fac, i)
+    !FIRSTPRIVATE is a workaround for ifort issues on some machines
+    !$OMP PARALLEL DO DEFAULT(SHARED), PRIVATE(i), FIRSTPRIVATE(fac)
     do b = 1, this%num_z_bins
         fac = dchis*n_chi(:,b)
         do i=1, this%num_z_p
@@ -607,20 +612,11 @@
     cl_w=0
     cl_cross=0
 
+    fac = dchis/chis**2
 
-    !> MGCAMB MOD START: compatibility with DES data
-    if ( this%use_weyl .and. .not. this%use_non_linear ) then
-        fac = dchis/chis**2
-    else
-        fac = dchis/chis**2
-        if (.not. this%use_weyl) fac = fac / h**3
-    end if
-    !fac = dchis/chis**2
-    ! if (.not. this%use_weyl) fac = fac / h**3
-    !< MGCAMB MOD END
-
-    !> MGCAMB MOD START: compatibility with DES data
-    !$OMP PARALLEL DO DEFAULT(SHARED), PRIVATE(j,kh, type_ix, tp, f1, f2, cltmp, ii, ix, kharr, zarr, powers, tmp, tmp_dw, powers_dw, tmp_ww, powers_ww)
+    !FIRSTPRIVATE is a workaround for ifort issues on some machines
+    !$OMP PARALLEL DO DEFAULT(SHARED), PRIVATE(j,kh, type_ix, tp, f1, f2, cltmp, ii, ix), &
+    !$OMP FIRSTPRIVATE(kharr, zarr, powers, wpowers, mwpowers, tmp, wtmp, mwtmp )
     do i=1, size(this%ls_cl)
         ix =0
         do j = 1, this%num_z_p
@@ -631,52 +627,32 @@
                 kharr(ix) = kh
             end if
         end do
-        !> MGCAMB MOD START: compatibility with DES
-        !call PK%PowerAtArr(kharr, zarr, ix, powers)
+	!> MGCAMB MOD START: compatibility with DES
+        call PK%PowerAtArr (kharr, zarr, ix, powers )
         if ( this%use_weyl .and. .not. this%use_non_linear ) then
-            ! used only with linear scales (for MG)
-            !> galaxy-galaxy correlation w(theta)
-            call Theory%MPK%PowerAtArr(kharr, zarr, ix, powers)
-            !> galaxy-lensing cross-correlation gamma_t (theta)
-            call Theory%MPK_WEYL_MATTER%PowerAtArr( kharr, zarr, ix, powers_dw )
-            !> lensing-lensing correlation xi+ annd xi-
-            call Theory%MPK_WEYL%PowerAtArr( kharr, zarr, ix, powers_ww )
-        else
-            call PK%PowerAtArr(kharr, zarr, ix, powers)
+            call WPK%PowerAtArr(kharr, zarr, ix, wpowers)
+            call MWPK%PowerAtArr(kharr, zarr, ix, mwpowers)
         end if
-        !< MGCAMB MOD END
+	!< MGCAMB MOD END
         ix=0
         do j = 1, this%num_z_p
             kh = (this%ls_cl(i) + 0.5) / chis(j)/h
             if (kh >= khmin .and. kh <= khmax) then
                 ix = ix+1
-                !tmp(j) = fac(j) * powers(ix)
-                !> MGCAMB MOD START
-                if ( this%use_weyl .and. .not. this%use_non_linear ) then
-                    ! fill the arrays of P(k) w-w and delta-w
-                    tmp_dw(j) = fac(j) * powers_dw(ix)
-                    tmp_ww(j) = fac(j) * powers_ww(ix)
-                    ! factor of h**3 introduced here
-		            tmp(j)    = fac(j)/h**3 * powers(ix)
-                    !if (i == 1) then
-                        !write(*,*) 'ij,tmps:',i,j,tmp(j), tmp_ww(j), tmp_dw(j)
-                        !write(*,*) 'ij,tmps:',i,j,tmp(j)
-                    !end if
+                tmp(j)  = fac(j)*powers(ix)/h**3
+		        !> MGCAMB MOD START
+                if ( this%use_weyl .and. .not. this%use_non_linear) then
+                    wtmp(j)  = fac(j)*wpowers(ix)
+                    mwtmp(j) = -fac(j)*mwpowers(ix)
+		        !< MGCAMB MOD END
                 else
-                    tmp(j) = fac(j) * powers(ix)
-                    !if (i == 1 )then
-                        !write(*,*) 'ij,tmps:',i,j,tmp(j)
-                    !end if
+                    wtmp(j)  = tmp(j)
+                    mwtmp(j) = tmp(j)
                 end if
-                !< MGCAMB MOD END
             else
-                tmp(j) = 0
-                !> MGCAMB MOD START: compatibility with DES data
-                if ( this%use_weyl .and. .not. this%use_non_linear ) then
-                    tmp_dw(j) = 0
-                    tmp_ww(j) = 0
-                end if
-                !< MGCAMB MOD END
+                tmp(j)   = 0
+                wtmp(j)  = 0
+                mwtmp(j) = 0
             end if
         end do
         do type_ix = 1, this%nmeasurement_types
@@ -688,33 +664,22 @@
                 if (tp==measurement_xip) then
                     cltmp = 0
                     do ii = 1, this%num_z_p
-                        !> MGCAMB MOD START: compatibility with DES data
-                        ! this requires weyl-weyl
-                        if ( this%use_weyl .and. .not. this%use_non_linear ) then
-                            cltmp = cltmp + tmp_ww(ii)*qs(ii,f1)*qs(ii,f2)
-                        else
-                            cltmp = cltmp + tmp(ii)*qs(ii,f1)*qs(ii,f2) 
-                        end if
-                        !< MGCAMB MOD END.
+			        ! this requires weyl-weyl
+                        cltmp = cltmp + wtmp(ii)*qs(ii,f1)*qs(ii,f2)
                     end do
                     cl_kappa(i,f1,f2) = cltmp
                 else if (tp==measurement_wtheta) then
                     cltmp = 0
                     do ii = 1, this%num_z_p
-                        ! this requires delta-delta
-                        cltmp = cltmp +  tmp(ii)*(qgal(ii,f1)*qgal(ii,f2))
+			        ! this requires delta-delta
+                        cltmp = cltmp + tmp(ii)*(qgal(ii,f1)*qgal(ii,f2))
                     end do
                     cl_w(i,f1,f2)=cltmp
                 else if (tp==measurement_gammat) then
                     cltmp = 0
                     do ii = 1, this%num_z_p
-                        !> MGCAMB MOD START: compatibility with DES data
-                        ! this requires weyl-matter
-                        if ( this%use_weyl .and. .not. this%use_non_linear ) then
-                            cltmp = cltmp + tmp_dw(ii)*(qgal(ii,f1)*qs(ii,f2))
-                        else
-                            cltmp = cltmp + tmp(ii)*(qgal(ii,f1)*qs(ii,f2))
-                        end if
+			        ! this requires weyl-matter
+                        cltmp = cltmp + mwtmp(ii)*(qgal(ii,f1)*qs(ii,f2))
                     end do
                     cl_cross(i,f1,f2)=cltmp
                 end if

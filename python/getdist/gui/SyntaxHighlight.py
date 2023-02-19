@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-
-from PySide.QtCore import QRegExp
-from PySide.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
+from PySide2.QtCore import QRegExp
+from PySide2.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
 
 
 def txformat(color, style=''):
@@ -18,6 +16,7 @@ def txformat(color, style=''):
         _format.setFontItalic(True)
 
     return _format
+
 
 # Syntax styles that can be shared by all languages
 STYLES = {
@@ -52,18 +51,19 @@ class PythonHighlighter(QSyntaxHighlighter):
         # Comparison
         '==', '!=', '<', '<=', '>', '>=',
         # Arithmetic
-        '\+', '-', '\*', '/', '//', '\%', '\*\*',
+        r'\+', '-', r'\*', '/', '//', r'\%', r'\*\*',
         # In-place
-        '\+=', '-=', '\*=', '/=', '\%=',
+        r'\+=', r'-=', r'\*=', r'/=', r'\%=',
         # Bitwise
-        '\^', '\|', '\&', '\~', '>>', '<<',
+        r'\^', r'\|', r'\&', r'\~', '>>', '<<',
     ]
 
     # Python braces
     braces = [
-        '\{', '\}', '\(', '\)', '\[', '\]',
+        r'\{', r'\}', r'\(', r'\)', r'\[', r'\]',
     ]
 
+    # noinspection PyArgumentList
     def __init__(self, document):
         QSyntaxHighlighter.__init__(self, document)
 
@@ -108,6 +108,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         ]
 
         # Build a QRegExp for each pattern
+        # noinspection PyArgumentList
         self.rules = [(QRegExp(pat), index, fmt)
                       for (pat, index, fmt) in rules]
 

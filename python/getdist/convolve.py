@@ -16,25 +16,26 @@ fastFFT = np.array(
      125829120, 134217728, 150994944, 167772160, 188743680, 201326592, 226492416, 234881024, 251658240, 268435456,
      301989888, 335544320, 377487360, 402653184, 452984832, 503316480, 536870912, 603979776, 671088640, 754974720,
      805306368, 905969664, 1006632960, 1207959552, 1342177280, 1358954496, 1509949440, 1610612736, 1811939328,
-     2013265920], dtype=np.int)
+     2013265920], dtype=int)
 
 
 def nearestFFTnumber(x):
     return np.maximum(x, fastFFT[np.searchsorted(fastFFT, x)])
 
 
-def convolve1D(x, y, mode, largest_size=0, cache=None, cache_args=[1, 2]):
+def convolve1D(x, y, mode, largest_size=0, cache=None, cache_args=(1, 2)):
     if min(x.shape[0], y.shape[0]) > 1000:
-        return convolveFFT(x, y, mode, largest_size=largest_size, cache=cache, cache_args=[1, 2])
+        return convolveFFT(x, y, mode, largest_size=largest_size, cache=cache, cache_args=cache_args)
     else:
         return np.convolve(x, y, mode)
 
 
-def convolve2D(x, y, mode, largest_size=0, cache=None, cache_args=[1, 2]):
+def convolve2D(x, y, mode, largest_size=0, cache=None, cache_args=(1, 2)):
     return convolveFFTn(x, y, mode, largest_size, cache, cache_args=cache_args)
 
 
-def convolveFFT(x, y, mode='same', yfft=None, xfft=None, largest_size=0, cache=None, cache_args=[1, 2]):
+# noinspection PyUnboundLocalVariable
+def convolveFFT(x, y, mode='same', yfft=None, xfft=None, largest_size=0, cache=None, cache_args=(1, 2)):
     """
     convolution of x with y; fft cans be cached.
     Be careful with caches, key uses id which can be reused for different object if object is freed.
@@ -48,14 +49,16 @@ def convolveFFT(x, y, mode='same', yfft=None, xfft=None, largest_size=0, cache=N
             yfft = cache.get(key)
         if yfft is None:
             yfft = np.fft.rfft(y, fsize)
-            if cache is not None and 2 in cache_args: cache[key] = yfft
+            if cache is not None and 2 in cache_args:
+                cache[key] = yfft
     if xfft is None:
         if cache is not None and 1 in cache_args:
             key = (fsize, x.size, id(x))
             xfft = cache.get(key)
         if xfft is None:
             xfft = np.fft.rfft(x, fsize)
-            if cache is not None and 1 in cache_args: cache[key] = xfft
+            if cache is not None and 1 in cache_args:
+                cache[key] = xfft
     res = np.fft.irfft(xfft * yfft)[0:size]
     if mode == 'same':
         return res[(y.size - 1) // 2:(y.size - 1) // 2 + x.size]
@@ -65,7 +68,8 @@ def convolveFFT(x, y, mode='same', yfft=None, xfft=None, largest_size=0, cache=N
         return res[y.size - 1:x.size]
 
 
-def convolveFFTn(in1, in2, mode="same", largest_size=0, cache=None, yfft=None, xfft=None, cache_args=[1, 2]):
+# noinspection PyUnboundLocalVariable
+def convolveFFTn(in1, in2, mode="same", largest_size=0, cache=None, yfft=None, xfft=None, cache_args=(1, 2)):
     s1 = np.array(in1.shape)
     s2 = np.array(in2.shape)
     size = s1 + s2 - 1
@@ -79,10 +83,12 @@ def convolveFFTn(in1, in2, mode="same", largest_size=0, cache=None, yfft=None, x
             yfft = cache.get(key2)
     if xfft is None:
         xfft = np.fft.rfftn(in1, fsize)
-        if cache is not None and 1 in cache_args: cache[key] = xfft
+        if cache is not None and 1 in cache_args:
+            cache[key] = xfft
     if yfft is None:
         yfft = np.fft.rfftn(in2, fsize)
-        if cache is not None and 2 in cache_args: cache[key2] = yfft
+        if cache is not None and 2 in cache_args:
+            cache[key2] = yfft
 
     fslice = tuple([slice(0, int(sz)) for sz in size])
     ret = np.fft.irfftn(xfft * yfft, fsize)[fslice]
@@ -137,7 +143,8 @@ def autoConvolve(x, n=None, normalize=True):
     return res
 
 
-def convolveGaussianDCT(x, sigma, pad_sigma=4, mode='same', cache={}):
+# noinspection PyUnboundLocalVariable
+def convolveGaussianDCT(x, sigma, pad_sigma=4, mode='same', cache=None):
     """
     1D convolution of x with Gaussian of width sigma pixels
     If pad_sigma>0, pads ends with zeros by int(pad_sigma*sigma) pixels
@@ -155,13 +162,14 @@ def convolveGaussianDCT(x, sigma, pad_sigma=4, mode='same', cache={}):
 
     s = padded_x.size
     hnorm = sigma / float(s)
-    gauss = cache.get((s, hnorm))
+    gauss = cache.get((s, hnorm)) if cache is not None else None
     if gauss is None:
         gauss = np.exp(-(np.arange(0, s) * (np.pi * hnorm)) ** 2 / 2.)
         cache[(s, hnorm)] = gauss
     res = fftpack.idct(fftpack.dct(padded_x, overwrite_x=fill > 0) * gauss, overwrite_x=fill > 0) / (2 * s)
-    if fill == 0: return res
-    if mode == 'same':
+    if fill == 0:
+        return res
+    elif mode == 'same':
         return res[fill:-fill2]
     elif mode == 'valid':
         return res[fill * 2:-fill2 - fill]
@@ -205,9 +213,9 @@ def convolveGaussianTrunc(x, sigma, sigma_range=4, mode='same', cache=None):
     gauss = None if cache is None else cache.get((fill, actual_size, sigma))
     if gauss is None:
         points = np.arange(-fill, fill + 1)
-        Win = np.exp(-(points / sigma) ** 2 / 2.)
-        Win /= np.sum(Win)
-        gauss = np.fft.rfft(Win, s)
+        win = np.exp(-(points / sigma) ** 2 / 2.)
+        win /= np.sum(win)
+        gauss = np.fft.rfft(win, s)
         if cache is not None:
             cache[(fill, actual_size, sigma)] = gauss
     res = np.fft.irfft(np.fft.rfft(x, s) * gauss, s)[:actual_size]

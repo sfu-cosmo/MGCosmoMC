@@ -98,7 +98,7 @@
     if (this%acc >= thin .or. thin==1) then
         if (want) then
             output_lines = output_lines +1
-            call CurParams%WriteParams(this%Config,this%acc/thin,CurLike)
+            call CurParams%WriteParams(this%Config,real(floor(this%acc/thin),mcp),CurLike)
         end if
         this%acc = mod(this%acc, real(thin,mcp))
     end if
@@ -310,10 +310,10 @@
 
         if (this%Mpi%MPI_LearnPropose .and. ( MPIChains==1 .or. (BaseParams%covariance_is_diagonal &
             .or. R < this%Mpi%MPI_Max_R_ProposeUpdate) .and. R > this%Mpi%MPI_R_StopProposeUpdate)) then
-        !If beginning to converge, update covariance matrix
-        if (Feedback > 0 .and. MPIRank==0) write (*,*) 'updating proposal density'
+            !If beginning to converge, update covariance matrix
+            if (Feedback > 0 .and. MPIRank==0) write (*,*) 'updating proposal density'
 
-        call this%Sampler%SetCovariance(MPICovMat)
+            call this%Sampler%SetCovariance(MPICovMat)
 
         end if !update propose
     end if !all chains have enough
@@ -325,7 +325,7 @@
     class(TMpiChainCollector) :: this
     real(mcp), intent(in) ::like
     real(mcp) P(:)
-    !Collect thinned samples after a burn-in perdiod
+    !Collect thinned samples after a burn-in period
     !Then use second half of the samples to get convergence
     !Use R = worst eigenvalue (variance of chain means)/(mean of chain variances) statistic for
     !convergence test, followed optionally by (variance of limit)/(mean variance) statistic
@@ -339,8 +339,8 @@
     !Have to be careful if were to dump before burn
     if (checkpoint .and. this%all_burn .and. this%checkpoint_burn==0 .and. &
         (.not. this%done_check .or.  mod(this%sample_num+1, this%checkpoint_freq)==0)) then
-    this%done_check=.true.
-    call this%WriteCheckpoint()
+        this%done_check=.true.
+        call this%WriteCheckpoint()
     end if
 
     !Do main adding samples functions
@@ -358,12 +358,12 @@
                 allocate(this%param_changes(num_params_used))
                 this%param_changes= 0
             end if
-!            do i=1, num_params_used
-!                if (this%Samples%Value(this%Samples%Count, i) /= this%Samples%Value(this%Samples%Count-1, i)) this%param_changes(i) =  this%param_changes(i) + 1
-!            end do
-! above code stopped working on new Cam system, seems like value(i,j) no longer works because of compiler bug in select type??
+            !            do i=1, num_params_used
+            !                if (this%Samples%Value(this%Samples%Count, i) /= this%Samples%Value(this%Samples%Count-1, i)) this%param_changes(i) =  this%param_changes(i) + 1
+            !            end do
+            ! above code stopped working on new Cam system, seems like value(i,j) no longer works because of compiler bug in select type??
             where (this%Samples%Item(this%Samples%Count) /= this%Samples%Item(this%Samples%Count-1))
-                  this%param_changes = this%param_changes + 1
+                this%param_changes = this%param_changes + 1
             end where
 
             this%Burn_done = all(this%param_changes > 50 +1)

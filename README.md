@@ -1,12 +1,8 @@
-<p align="center">
-<img src="img/mu0_sigma0_contour2.png" width="350" title="mu sigma constraints" />
-<img src="img/w0_wa_contour2.png" width="350" title="CPL constraints" />
-</p>
 
 MGCosmoMC 
 ===========
 ## Modified Growth with CosmoMC
-This is the official repository for the MGCosmoMC patch. It implements the patch [MGCAMB](https://github.com/sfu-cosmo/MGCAMB) into the popular Markov Chain Monte Carlo engine [CosmoMC](https://github.com/cmbant/CosmoMC).
+This is the official repository for the MGCosmoMC package. It implements the patch [MGCAMB](https://github.com/sfu-cosmo/MGCAMB) into the popular Markov Chain Monte Carlo engine [CosmoMC](https://github.com/cmbant/CosmoMC). This version is upgraded to be compatible with the latest CosmoMC(v1.3.2).
 
 ## Table of contents
 * [1. Introduction](#1-introduction)
@@ -18,7 +14,6 @@ This is the official repository for the MGCosmoMC patch. It implements the patch
     * [Aggressive cut](#aggressive-cut)
     * [Standard cut](#standard-cut)
     * [Soft cut](#soft-cut)
-* [6. Derived Parameters](#derived-parameters)
 * [7. Authors List](#authors-list)
 
 
@@ -43,7 +38,7 @@ Gong-Bo Zhao, Levon Pogosian, Alessandra Silvestri, Joel Zylberberg,
 [arXiv:0809.3791 [astro-ph]](http://arxiv.org/abs/0809.3791), [Phys. Rev. D 79, 083513](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.79.083513)
 
 
-as well as the original CAMB [paper](http://arxiv.org/abs/astro-ph/9911177)  and CosmoMC [paper](https://arxiv.org/abs/astro-ph/0205436). The file  [``` MGCosmoMC_references.bib```](references/MGCosmoMC_references.bib) contains  all the references mentioned above.
+as well as the original CAMB [paper](http://arxiv.org/abs/astro-ph/9911177)  and CosmoMC [paper](https://arxiv.org/abs/astro-ph/0205436). 
 
 ## 2. How to install
 To install MGCosmoMC simply run on your terminal:
@@ -59,13 +54,13 @@ As a general rule, if you are able to install CosmoMC, then you will be able to 
 ## 3. How to run
 Before running MGCosmoMC set your model parameters in [```params_CMB_MG.ini```](batch3/params_CMB_MG.ini). Pick a ``` MG_flag ``` to choose which model you are going to analyze. For a structure of the models see the [MGCAMB page](https://github.com/sfu-cosmo/MGCAMB).
 
-```GRtrans ```  set the scale factor at which MG is switched on. We suggest to set it arger or equal than 0.001. 
+```GRtrans ```  set the scale factor at which MG is switched on. We suggest to set it larger or equal than 0.001. 
 
-Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The cuts on DES 1YR dataset is described in Sect.[4](#4-des-1yr-dataset)
+Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The cuts on DES 1YR dataset is described in Sect.[5](#5-des-1yr-dataset)
 
 
 ## 4. Installing Planck 2018
-MGCosmoMC is based on CosmoMC 2017, before the Planck 2018 likelihood was released. It is still possible to use the Planck 2018 likelihood with MGCosmoMC by following the procedure illustrated in this Section.
+MGCosmoMC couuld work with Planck 2018 likelihood, which needs to be installed separately in advance. Please use the Planck 2018 likelihood with MGCosmoMC by following the procedure illustrated in this Section.
 
 In the following, ```/$$$``` is meant to be replaced by the path specific to your installation.
  
@@ -95,52 +90,9 @@ ln -s $PLC_PATH MGCosmoMC/data/clik_14.0
 cd MGCosmoMC
 make
 ```
-4. Now you want to copy the files from the latest ```CosmoMC/batch3``` folder and the ```CosmoMC/data``` folder into the corresponding directories in MGCosmoMC. You want to keep some of the files you have in ```batch3``` (since some of them may have MG-specific alternations), but add to them the latest files.
 
-E.g, rename your ```MGCosmoMC/batch3/common.ini``` into ```MG_common.ini```. Then, run
+4. Now try running the standard CosmoMC test using the ```test_planck.ini``` file:
 
-```bash
-cp -r /$$$/CosmoMC/batch3/* /$$$/MGCosmoMC/batch3/
-```
-and
-```bash
-cp -r /$$$/CosmoMC/data/* /$$$/data/
-```
-and
-```bash
-cp -r /$$$/CosmoMC/planck_covmats/* /$$$/MGCosmoMC/planck_covmats/
-```
-Now go to ```/$$$/MGCosmoMC/batch3/```
-
-and rename the ```MG_common.ini``` file back into ```common.ini```
-
-
-The only difference is that in common.ini
-```bash
-INCLUDE(likelihood.ini)
-INCLUDE(params_CMB_defaults.ini)
-
-should be replaced by
-
-INCLUDE(likelihood.ini)
-INCLUDE(params_CMB_defaults.ini)
-# MGCAMB MOD START
-INCLUDE(params_CMB_MG.ini)
-#MGCAMB MOD END
-```
-
-6. Now try running the standard CosmoMC test using the ```test_planck.ini``` file:
-
-In your ```MGCosmoMC``` directory type:
-```bash
-cp /$$$/CosmoMC/test_planck.ini ./
-```
-Then, create a directory called ```chains```
-
-```
-mkdir chains
-```
-Then run
 ```
 ./cosmomc test_planck.ini
 ```
@@ -206,38 +158,21 @@ The soft cut is obtained by setting Delta Chi^2 = 10. The shaded regions in the 
 </p>
 
 
-## 6. Derived Parameters
-This version has three derived parameters that depend on the *Planck parametrization* of the Mu-Gamma functions ( ```MG_flag = 1```, ```pure_MG_flag = 1```, ```mugamma_par = 2``` ). These parameters are set in [```CosmologyParametrizations_MG.f90```](source/CosmologyParametrizations_MG.f90)
-```fortran
-!mu_0-1
-derived(15) = CMB%E11 * CMB%omv
-!eta_0-1
-derived(16) = CMB%E22 * CMB%omv
-! sigma_0-1
-derived(17) = 0.5d0 * (1.d0+CMB%E11*CMB%omv) * (2.d0+CMB%E22*CMB%omv) 
-```
-and [params_CMB.paramnames](paramnames/params_CMB.paramnames)
-```bash
-mu0m1*        \mu_0-1
-gamma0m1*     \gamma_0-1
-sigma0m1*     \Sigma_0-1
-```
-If you use a different parametrization, please modify the files accordingly.
-
 ## 7. Authors List
-Main Developer:
-- [Alex Zucca](https://www.sfu.ca/physics/people/profiles/azucca.html) Email: azucca@sfu.ca
+Main Developers:
+- [Zhuangfei Wang] Email: zhuangfei_wang@sfu.ca
+- [Alex Zucca] Email: azucca@dwavesys.com
 
 Original Code Developers:
 * [Gong-Bo Zhao](http://icosmology.info)
-* [Alireza Hojjati](http://www.phas.ubc.ca/%7Eahojjati/index.html)
+* Alireza Hojjati
 * [Levon Pogosian](http://www.sfu.ca/%7Elevon/)
 * [Alessandra Silvestri](http://wwwhome.lorentz.leidenuniv.nl/%7Esilvestri/Home.html)
 
 
-Repo created and maintained by [Alex Zucca](https://github.com/alexzucca90). If you find any bugs in the code, please contact Alex Zucca at azucca@sfu.ca or at azucca@dwavesys.com.
+Repo created and maintained by Zhuangfei Wang. If you find any bugs in the code, please contact Zhuangfei Wang at zhuangfei_wang@sfu.ca .
 
 <p align="center">
-<a href="http://www.sfu.ca/physics.html"><img src="https://pbs.twimg.com/profile_images/966810928669802496/LVqOwtsx_400x400.jpg" height="170px"></a>
-<a href="http://www.sfu.ca/physics/cosmology/"><img src="https://avatars0.githubusercontent.com/u/7880410?s=280&v=4" height="200px"></a>
+    <a href="http://www.sfu.ca/physics.html"><img src="https://www.sfu.ca/content/sfu/sfuwest/cc-2015/registration/sponsored-students/jcr:content/main_content/image_0.img.640.medium.jpg/1430033284084.jpg" width="380px" height="200px" ></a>
+    <a href="http://www.sfu.ca/physics/cosmology/"><img src="https://avatars0.githubusercontent.com/u/7880410?s=280&v=4" width="200px"></a>
 </p>

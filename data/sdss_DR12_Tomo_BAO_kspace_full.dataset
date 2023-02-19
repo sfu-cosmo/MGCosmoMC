@@ -1,0 +1,11 @@
+#This is the sdss DR12 Tomographic BAO measurement
+# 1607.03153  
+name = sdss_DR12_Tomo_BAO_kspace_full
+
+measurement_type = DA_over_rs DA_over_rs DA_over_rs DA_over_rs DA_over_rs DA_over_rs DA_over_rs DA_over_rs DA_over_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs bao_Hz_rs 
+
+#number of bao data points 
+num_bao = 18
+
+bao_measurements_file = sdss_DR12_Tomo_BAO_kspace_full.txt
+bao_invcov_file = sdss_DR12_Tomo_BAO_kspace_full_invcov.txt

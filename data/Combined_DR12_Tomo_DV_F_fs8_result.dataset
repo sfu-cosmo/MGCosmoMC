@@ -1,0 +1,9 @@
+name = BAOWYT
+
+measurement_type = DV DV DV DV DV DV DV DV DV F_AP F_AP F_AP F_AP F_AP F_AP F_AP F_AP F_AP f_sigma8 f_sigma8 f_sigma8 f_sigma8 f_sigma8 f_sigma8 f_sigma8 f_sigma8 f_sigma8
+
+num_bao = 27
+		
+bao_measurements_file = Combined_DR12_Tomo_DV_F_fs8_result.txt
+bao_invcov_file = Combined_DR12_Tomo_DV_F_fs8_invcov.txt
+

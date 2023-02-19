@@ -154,10 +154,10 @@
 
     subroutine ParamArrayToTheoryParams(this, Params, CMB)
     class(TParameterization) :: this
-    real(mcp) Params(:)
+    class(TCalculationAtParamPoint) :: Params
     Class(TTheoryParams), target :: CMB
 
-    CMB%BaseParams(1:num_theory_params) = Params(1:num_theory_params)
+    CMB%BaseParams(1:num_theory_params) = Params%P(1:num_theory_params)
 
     end subroutine ParamArrayToTheoryParams
 
@@ -181,6 +181,8 @@
         num_theory_params= Ini%Read_Int('num_theory_params')
         call Names%SetUnnamed(num_theory_params)
     end if
+!test
+!write(*,*) 'num_theory_params', num_theory_params
     if (num_theory_params> max_theory_params) call MpiStop('see settings.f90: num_theory_params> max_theory_params')
     index_data =  num_theory_params+1
 
@@ -196,11 +198,11 @@
 
     end function TParameterization_NonBaseParameterPriors
 
-    subroutine TParameterization_CalcDerivedParams(this, P, Theory, derived)
+    subroutine TParameterization_CalcDerivedParams(this, Params, Theory, derived)
     class(TParameterization) :: this
     real(mcp), allocatable :: derived(:)
     class(TTheoryPredictions), allocatable :: Theory !can be unallocated for simple cases (e.g. generic)
-    real(mcp) :: P(:)
+    class(TCalculationAtParamPoint) :: Params
 
 
     end subroutine TParameterization_CalcDerivedParams
@@ -260,7 +262,7 @@
 
     if (ChainOutFile%unit==0) return
 
-    call Config%Parameterization%CalcDerivedParams(this%P, this%Theory, derived)
+    call Config%Parameterization%CalcDerivedParams(this, this%Theory, derived)
     call DataLikelihoods%addLikelihoodDerivedParams(this%P, this%Theory, derived, this%Likelihoods, like)
 
     if (allocated(derived)) numderived = size(derived)
@@ -318,7 +320,7 @@
     end subroutine TTheoryCalculator_ReadImportanceParams
 
     subroutine TTheoryCalculator_GetTheoryForImportance(this, CMB, Theory, error)
-    class(TTheoryCalculator) :: this
+    class(TTheoryCalculator), target :: this
     class(TTheoryParams) :: CMB
     class(TTheoryPredictions) :: Theory
     integer error
@@ -553,7 +555,7 @@
     select type (like => L%Items(i)%P)
     class is (TDataLikelihood)
         P => like
-        class default
+    class default
         stop 'List contains non-TDataLikelihood item'
     end select
 
@@ -692,13 +694,14 @@
         if (Like%LikelihoodType/='') then
             ix = LikelihoodTypes%IndexOf(Like%LikelihoodType)
             if (ix==-1) then
-                call LikelihoodTypes%Add(trim(Like%LikelihoodType))
+                call LikelihoodTypes%Add(Like%LikelihoodType)
                 counts(LikelihoodTypes%Count)=1
             else
                 counts(ix) = counts(ix)+1
             end if
         end if
     end do
+
     !Add a parameter for the prior
     LikeNames%name(L%Count+1) = 'chi2_prior'
     LikeNames%label(L%Count+1) = FormatString(trim(chisq_label), 'prior')

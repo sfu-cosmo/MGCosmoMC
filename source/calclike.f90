@@ -101,7 +101,7 @@
 
     if (any(Params%P(:num_params) > BaseParams%PMax(:num_params)) .or. &
         & any(Params%P(:num_params) < BaseParams%PMin(:num_params))) then
-    GetLogLikeBounds = logZero
+        GetLogLikeBounds = logZero
     else
         GetLogLikeBounds=0
     end if
@@ -118,7 +118,7 @@
     do i=1,num_params
         if ((BaseParams%varying(i) .or. BaseParams%include_fixed_parameter_priors) &
             .and. BaseParams%GaussPriors%std(i)/=0) then
-        logLike = logLike + ((P(i)-BaseParams%GaussPriors%mean(i))/BaseParams%GaussPriors%std(i))**2
+            logLike = logLike + ((P(i)-BaseParams%GaussPriors%mean(i))/BaseParams%GaussPriors%std(i))**2
         end if
     end do
 
@@ -275,9 +275,9 @@
     class(TTheoryLikeCalculator) :: this
     class(TCalculationAtParamPoint), target :: Params
 
-    if (.not. allocated(this%TheoryParams)) call this%Config%Parameterization%NewTheoryParams(this%TheoryParams)
-    call this%Config%Parameterization%ParamArrayToTheoryParams(Params%P,this%TheoryParams)
     this%Params => Params
+    if (.not. allocated(this%TheoryParams)) call this%Config%Parameterization%NewTheoryParams(this%TheoryParams)
+    call this%Config%Parameterization%ParamArrayToTheoryParams(Params,this%TheoryParams)
 
     end subroutine TheoryLike_SetTheoryParams
 
@@ -406,7 +406,7 @@
     end subroutine TheoryLike_GetTheoryForLike
 
     subroutine TheoryLike_GetTheoryForImportance(this,Params, error)
-    class(TTheoryLikeCalculator) :: this
+    class(TTheoryLikeCalculator), target :: this
     class(TCalculationAtParamPoint), target :: Params
     integer error
 
@@ -444,7 +444,7 @@
 
     call this%TLikeCalculator%WriteParamsHumanText(aunit, P, LogLike, weight)
 
-    call this%Config%Parameterization%CalcDerivedParams(P%P,P%Theory, derived)
+    call this%Config%Parameterization%CalcDerivedParams(P,P%Theory, derived)
     call DataLikelihoods%addLikelihoodDerivedParams(P%P, P%Theory, derived, P%Likelihoods, LogLike)
     if (allocated(derived)) numderived = size(derived)
     do i=1, numderived

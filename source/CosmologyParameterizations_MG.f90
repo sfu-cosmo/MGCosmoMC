@@ -82,12 +82,11 @@
     call Names%AddDerivedRange('zrei', mn=this%use_min_zre)
     call Names%AddDerivedRange('H0', this%H0_min, this%H0_max)
     this%num_derived = Names%num_derived
-
     !set number of hard parameters, number of initial power spectrum parameters
     !> MGCAMB MOD START: replace the number of parameters
     ! default code
     !call this%SetTheoryParameterNumbers(16,last_power_index)
-    call this%SetTheoryParameterNumbers(43,last_power_index)
+    call this%SetTheoryParameterNumbers(78,last_power_index)
     !< MGCAMB MOD END
 
     end subroutine TP_Init
@@ -118,7 +117,7 @@
 
     subroutine TP_ParamArrayToTheoryParams(this, Params, CMB)
     class(ThetaParameterization) :: this
-    real(mcp) Params(:)
+    class(TCalculationAtParamPoint) :: Params
     integer, parameter :: ncache =2
     Class(TTheoryParams), target :: CMB
     Type(CMBParams), save :: LastCMB(ncache)
@@ -135,35 +134,35 @@
         class is (CMBParams)
             do i=1, ncache
                 !want to save two slow positions for some fast-slow methods
-                if (all(Params(1:num_hard) == LastCMB(i)%BaseParams(1:num_hard))) then
+                if (all(Params%P(1:num_hard) == LastCMB(i)%BaseParams(1:num_hard))) then
                     CP2 => CMB !needed to make next line work for some odd reason CMB=LastCMB(i) does not work
                     CP2 = LastCMB(i)
                     call this%TCosmologyParameterization%ParamArrayToTheoryParams(Params, CMB)
-                    call SetFast(Params,CMB)
+                    call SetFast(Params%P,CMB)
                     return
                 end if
             end do
             call this%TCosmologyParameterization%ParamArrayToTheoryParams(Params, CMB)
 
             error = 0   !JD to prevent stops when using bbn_consistency or m_sterile
-            DA = Params(3)/100
+            DA = Params%P(3)/100
             try_b = this%H0_min
-            call SetForH(Params,CMB,try_b, .true.,error)  !JD for bbn related errors
+            call SetForH(Params%P,CMB,try_b, .true.,error)  !JD for bbn related errors
             if(error/=0)then
                 cmb%H0=0
                 return
             end if
             D_b = CosmoCalc%CMBToTheta(CMB)
             try_t = this%H0_max
-            call SetForH(Params,CMB,try_t, .false.)
+            call SetForH(Params%P,CMB,try_t, .false.)
             D_t = CosmoCalc%CMBToTheta(CMB)
             if (DA < D_b .or. DA > D_t) then
-                if (Feedback>1) write(*,*) instance, 'Out of range finding H0: ', real(Params(3))
+                if (Feedback>1) write(*,*) instance, 'Out of range finding H0: ', real(Params%P(3))
                 cmb%H0=0 !Reject it
             else
                 lasttry = -1
                 do
-                    call SetForH(Params,CMB,(try_b+try_t)/2, .false.)
+                    call SetForH(Params%P,CMB,(try_b+try_t)/2, .false.)
                     D_try = CosmoCalc%CMBToTheta(CMB)
                     if (D_try < DA) then
                         try_b = (try_b+try_t)/2
@@ -174,7 +173,6 @@
                     lasttry = D_try
                 end do
 
-                !!call InitCAMB(CMB,error)
                 if (CMB%tau==0._mcp) then
                     CMB%zre=0
                 else
@@ -185,17 +183,17 @@
                 cache = mod(cache,ncache)+1
             end if
         end select
-        class default
+    class default
         call MpiStop('CosmologyParameterizations: Calculator is not TCosmologyCalculator')
     end select
 
     end subroutine TP_ParamArrayToTheoryParams
 
-    subroutine TP_CalcDerivedParams(this, P, Theory, derived)
+    subroutine TP_CalcDerivedParams(this, Params, Theory, derived)
     class(ThetaParameterization) :: this
     real(mcp), allocatable :: derived(:)
     class(TTheoryPredictions), allocatable :: Theory
-    real(mcp) :: P(:)
+    class(TCalculationAtParamPoint) :: Params
     Type(CMBParams) CMB
     real(mcp) :: lograt
     integer ix,i
@@ -207,7 +205,7 @@
     class is (TCosmoTheoryPredictions)
         allocate(Derived(this%num_derived), source=0._mcp)
 
-        call this%ParamArrayToTheoryParams(P,CMB)
+        call this%ParamArrayToTheoryParams(Params,CMB)
 
         derived(1) = CMB%H0
         derived(2) = CMB%omv
@@ -225,15 +223,8 @@
         derived(13) = Theory%Lensing_rms_deflect
         derived(14) = CMB%zre
         !> MGCAMB MOD START: adding derived parameters, this has to be modified for each model!!!
-        !mu_0-1
-        derived(15) = CMB%E11 * CMB%omv
-        !eta_0-1
-        derived(16) = CMB%E22 * CMB%omv
-        ! sigma_0-1
-        derived(17) = 0.5d0 * (1.d0+CMB%E11*CMB%omv) * (2.d0+CMB%E22*CMB%omv)
-        !ix=15
-        ix=18
         !> MGCAMB MOD END
+        ix=15
         derived(ix) = cl_norm*CMB%InitPower(As_index)*1e9
         derived(ix+1) = derived(ix)*exp(-2*CMB%tau)  !A e^{-2 tau}
         ix = ix+2
@@ -307,6 +298,7 @@
     Type(CMBParams) CMB
     real(mcp) h2,H0
     integer, optional :: error
+    integer :: inode
 
     CMB%H0=H0
     if (firsttime) then
@@ -365,43 +357,61 @@
         CMB%E11 = Params(22)
         CMB%E22 = Params(23)
 
+        ! Effective Newtons constant
+        CMB%ga  = Params(24)
+        CMB%nn  = Params(25)
+
         ! DES parametrization
-        CMB%mu0     = Params(24)
-        CMB%sigma0  = Params(25)
+        CMB%mu0     = Params(26)
+        CMB%sigma0  = Params(27)
 
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(26)
-        CMB%MGRfix = Params(27)
+        CMB%MGQfix = Params(28)
+        CMB%MGRfix = Params(29)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(28)
-        CMB%Rnot    = Params(29)
-        CMB%sss     = Params(30)
+        CMB%Qnot    = Params(30)
+        CMB%Rnot    = Params(31)
+        CMB%sss     = Params(32)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(31)
+        CMB%Linder_gamma = Params(33)
 
         ! f(R) QSA
-        CMB%B0 = Params(32)
+        CMB%B0 = Params(34)
 
         ! Symmetron
-        CMB%beta_star   = Params(33)
-        CMB%a_star      = Params(34)
-        CMB%xi_star     = Params(35)
+        CMB%beta_star   = Params(35)
+        CMB%a_star      = Params(36)
+        CMB%xi_star     = Params(37)
 
         ! Dilaton
-        CMB%beta0   = Params(36)
-        CMB%xi0     = Params(37)
-        CMB%DilR    = Params(38)
-        CMB%DilS    = Params(39)
+        CMB%beta0   = Params(38)
+        CMB%xi0     = Params(39)
+        CMB%DilR    = Params(40)
+        CMB%DilS    = Params(41)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(40)
-        CMB%FRn     = Params(41)
+        CMB%F_R0    = Params(42)
+        CMB%FRn     = Params(43)
 
         ! DE model parameters
-        CMB%w0DE = Params(42)
-        CMB%waDE  = Params(43)
+        CMB%w0DE = Params(44)
+        CMB%waDE  = Params(45)
+
+! =============MGXrecon=============
+        do inode = 46, 56
+            CMB%mu_arr(inode-45) = Params(inode)
+        end do
+
+        do inode = 57, 67
+            CMB%sigma_arr(inode-56) = Params(inode)
+        end do
+
+        do inode = 68, 78
+            CMB%X_arr(inode-67) = Params(inode)
+        end do
+! =============MGXrecon=============
         !< MGCAMB MOD END
 
         call SetFast(Params,CMB)
@@ -415,10 +425,11 @@
     CMB%omdm = CMB%omdmh2/h2
     CMB%omv = 1- CMB%omk - CMB%omb - CMB%omdm
 
+    CMB%X_arr(11) = CMB%omv
     !> MGCAMB MOD START: adjiusting the parameters in case we have f(R)
     if ( MG_flag == 3 .and. QSA_flag == 1) then
         CMB%B1 = 4.d0/3.d0
-        CMB%lambda1_2 = 10.d0**Params(32)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
+        CMB%lambda1_2 = 10.d0**Params(34)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
         CMB%B2 = 0.5d0
         CMB%lambda2_2 = CMB%B1* CMB%lambda1_2
         CMB%ss = 4.d0
@@ -445,19 +456,21 @@
     use MGCAMB
     !< MGCAMB MOD END
     class(BackgroundParameterization) :: this
-    real(mcp) Params(:)
+    class(TCalculationAtParamPoint) :: Params
     class(TTheoryParams), target :: CMB
     real(mcp) omegam, h2
 
+    integer :: inode
+
     select type (CMB)
     class is (CMBParams)
-        omegam = Params(1)
-        CMB%H0 = Params(2)
-        CMB%omk = Params(3)
-        CMB%omnuh2=Params(4)/neutrino_mass_fac*(standard_neutrino_neff/3)**0.75_mcp
-        CMB%w =    Params(5)
-        CMB%wa =    Params(6)
-        CMB%nnu =    Params(7)
+        omegam = Params%P(1)
+        CMB%H0 = Params%P(2)
+        CMB%omk = Params%P(3)
+        CMB%omnuh2=Params%P(4)/neutrino_mass_fac*(standard_neutrino_neff/3)**0.75_mcp
+        CMB%w =    Params%P(5)
+        CMB%wa =    Params%P(6)
+        CMB%nnu =    Params%P(7)
 
         CMB%h=CMB%H0/100
         h2 = CMB%h**2
@@ -479,59 +492,78 @@
         CMB%Alens=1
 
         !> MGCAMB MOD START: Reading the parameters
-        CMB%B1          = Params(17)
-        CMB%B2          = Params(18)
-        CMB%lambda1_2   = Params(19)
-        CMB%lambda2_2   = Params(20)
-        CMB%ss          = Params(21)
+        CMB%B1          = Params%P(17)
+        CMB%B2          = Params%P(18)
+        CMB%lambda1_2   = Params%P(19)
+        CMB%lambda2_2   = Params%P(20)
+        CMB%ss          = Params%P(21)
 
         ! Planck Parametrization
-        CMB%E11 = Params(22)
-        CMB%E22 = Params(23)
+        CMB%E11 = Params%P(22)
+        CMB%E22 = Params%P(23)
+
+        !# Effective Newtons constant
+        CMB%ga = Params%P(24)
+        CMB%nn = Params%P(25)
 
         ! DES parametrization
-        CMB%mu0     = Params(24)
-        CMB%sigma0  = Params(25)
+        CMB%mu0     = Params%P(26)
+        CMB%sigma0  = Params%P(27)
 
         ! Q-R parametrization 1
-        CMB%MGQfix = Params(26)
-        CMB%MGRfix = Params(27)
+        CMB%MGQfix = Params%P(28)
+        CMB%MGRfix = Params%P(29)
 
         ! Q-R parametrization 2
-        CMB%Qnot    = Params(28)
-        CMB%Rnot    = Params(29)
-        CMB%sss     = Params(30)
+        CMB%Qnot    = Params%P(30)
+        CMB%Rnot    = Params%P(31)
+        CMB%sss     = Params%P(32)
 
         ! Growth rate gamma
-        CMB%Linder_gamma = Params(31)
+        CMB%Linder_gamma = Params%P(33)
 
         ! f(R) QSA
-        CMB%B0 = Params(32)
+        CMB%B0 = Params%P(34)
 
         ! Symmetron
-        CMB%beta_star   = Params(33)
-        CMB%a_star      = Params(34)
-        CMB%xi_star     = Params(35)
+        CMB%beta_star   = Params%P(35)
+        CMB%a_star      = Params%P(36)
+        CMB%xi_star     = Params%P(37)
 
         ! Dilaton
-        CMB%beta0   = Params(36)
-        CMB%xi0     = Params(37)
-        CMB%DilR    = Params(38)
-        CMB%DilS    = Params(39)
+        CMB%beta0   = Params%P(38)
+        CMB%xi0     = Params%P(39)
+        CMB%DilR    = Params%P(40)
+        CMB%DilS    = Params%P(41)
 
         ! Hu-Sawicki f(R) gravity
-        CMB%F_R0    = Params(40)
-        CMB%FRn     = Params(41)
+        CMB%F_R0    = Params%P(42)
+        CMB%FRn     = Params%P(43)
 
         ! DE model parameters
-        CMB%w0DE = Params(42)
-        CMB%waDE  = Params(43)
+        CMB%w0DE = Params%P(44)
+        CMB%waDE  = Params%P(45)
+
+! =============MGXrecon=============
+        do inode = 46, 56
+            CMB%mu_arr(inode-45) = Params%P(inode)
+        end do
+
+        do inode = 57, 67
+            CMB%sigma_arr(inode-56) = Params%P(inode)
+        end do
+
+        do inode = 68, 78
+            CMB%X_arr(inode-67) = Params%P(inode)
+        end do
+        CMB%X_arr(11) = CMB%omv
+! =============MGXrecon=============
         !< MGCAMB MOD END
 
         ! adjiusting the parameters in case we have f(R)
         if ( MG_flag == 3 .and. QSA_flag == 1) then
             CMB%B1 = 4.d0/3.d0
-            CMB%lambda1_2 = 10.d0**Params(32)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
+            CMB%lambda1_2 = 10.d0**Params%P(34)* ((299792458.d-3)**2)/(2.d0 * CMB%H0**2)
             CMB%B2 = 0.5d0
             CMB%lambda2_2 = CMB%B1* CMB%lambda1_2
             CMB%ss = 4.d0
@@ -542,16 +574,16 @@
     end subroutine BK_ParamArrayToTheoryParams
 
 
-    subroutine BK_CalcDerivedParams(this, P, Theory, derived)
+    subroutine BK_CalcDerivedParams(this, Params, Theory, derived)
     class(BackgroundParameterization) :: this
     real(mcp), allocatable :: derived(:)
     class(TTheoryPredictions), allocatable :: Theory
-    real(mcp) :: P(:)
+    class(TCalculationAtParamPoint) :: Params
     Type(CMBParams) CMB
 
     allocate(Derived(1))
 
-    call this%ParamArrayToTheoryParams(P,CMB)
+    call this%ParamArrayToTheoryParams(Params,CMB)
 
     derived(1) = CMB%omv
 
@@ -591,19 +623,19 @@
 
     subroutine AP_ParamArrayToTheoryParams(this, Params, CMB)
     class(AstroParameterization) :: this
-    real(mcp) Params(:)
+    class(TCalculationAtParamPoint) :: Params
     class(TTheoryParams), target :: CMB
     real(mcp) omegam, h2
     integer error
 
     select type (CMB)
     class is (CMBParams)
-        omegam = Params(1)
-        CMB%omb= Params(2)
-        CMB%H0 = Params(3)
-        CMB%omk = Params(4)
-        CMB%sum_mnu_standard = Params(5)
-        CMB%omnuh2=Params(5)/neutrino_mass_fac*(standard_neutrino_neff/3)**0.75_mcp
+        omegam = Params%P(1)
+        CMB%omb= Params%P(2)
+        CMB%H0 = Params%P(3)
+        CMB%omk = Params%P(4)
+        CMB%sum_mnu_standard = Params%P(5)
+        CMB%omnuh2=Params%P(5)/neutrino_mass_fac*(standard_neutrino_neff/3)**0.75_mcp
 
         CMB%h=CMB%H0/100
         h2 = CMB%h**2
@@ -613,16 +645,16 @@
         CMB%omc= omegam - CMB%omb - CMB%omnu
         CMB%omch2 = CMB%omc*h2
 
-        CMB%w =    Params(6)
-        CMB%wa =   Params(7)
-        CMB%nnu =  Params(8)
+        CMB%w =    Params%P(6)
+        CMB%wa =   Params%P(7)
+        CMB%nnu =  Params%P(8)
         if (CosmoSettings%bbn_consistency) then
             CMB%YHe = BBN_YHe%Value(CMB%ombh2,CMB%nnu - standard_neutrino_neff,error)
         else
-            CMB%YHe = Params(9)
+            CMB%YHe = Params%P(9)
         end if
 
-        CMB%InitPower(1:num_initpower) = Params(index_initpower:index_initpower+num_initpower-1)
+        CMB%InitPower(1:num_initpower) = Params%P(index_initpower:index_initpower+num_initpower-1)
         !CMB%InitPower(As_index) = exp(CMB%InitPower(As_index))
         CMB%InitPower(As_index) = CMB%InitPower(As_index) *10 !input is 10^9 As, cl_norm = 1e-10
 
@@ -639,20 +671,21 @@
         CMB%iso_cdm_correlated=0
         CMB%Alens=1
         CMB%omnuh2_sterile = 0
+
     end select
     end subroutine AP_ParamArrayToTheoryParams
 
 
-    subroutine AP_CalcDerivedParams(this, P, Theory, derived)
+    subroutine AP_CalcDerivedParams(this, Params, Theory, derived)
     class(AstroParameterization) :: this
     real(mcp), allocatable :: derived(:)
     class(TTheoryPredictions), allocatable :: Theory
-    real(mcp) :: P(:)
+    class(TCalculationAtParamPoint) :: Params
     Type(CMBParams) CMB
 
     allocate(Derived(9))
 
-    call this%ParamArrayToTheoryParams(P,CMB)
+    call this%ParamArrayToTheoryParams(Params,CMB)
 
     if (.not. allocated(Theory)) call MpiStop('Not allocated theory!!!')
     select type (Theory)

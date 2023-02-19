@@ -3,6 +3,9 @@
     use likelihood
     use GeneralTypes
     use ObjectLists
+!> MGACMB MOD START:
+    use MGCAMB, only:nnode
+!> MGACMB MOD END:
     implicit none
 
     integer, parameter :: derived_age=1, derived_zstar=2, derived_rstar=3, derived_thetastar=4, derived_DAstar = 5, &
@@ -132,6 +135,10 @@
         real(mcp) :: E11
         real(mcp) :: E22
 
+        ! Effective Newtons constant
+        real(mcp)  :: ga
+        real(mcp)  :: nn
+
         ! DES parametrization
         real(mcp) :: mu0
         real(mcp) :: sigma0
@@ -169,6 +176,12 @@
         ! DE model parameters
         real(mcp) :: w0DE
         real(mcp) :: waDE
+
+! =============MGXrecon=============
+        real(mcp) :: mu_arr(nnode+1)
+        real(mcp) :: sigma_arr(nnode+1)
+        real(mcp) :: X_arr(nnode+1)
+! =============MGXrecon=============
         !< MGCAMB MOD END
     end Type CMBParams
 
@@ -241,8 +254,10 @@
     if (this%neutrino_hierarchy == neutrino_hierarchy_degenerate) then
         call Ini%Read('num_massive_neutrinos',this%num_massive_neutrinos)
         if (this%num_massive_neutrinos <1) call MpiStop('num_massive_neutrinos must be set set')
-    else if (Ini%Read_Int('num_massive_neutrinos',0)>0) then
-        write(*,*) 'NOTE: num_massive_neutrinos ignored, using specified hierarchy'
+    elseif (Ini%HasKey('num_massive_neutrinos')) then
+        if (Ini%Read_Int('num_massive_neutrinos',0)>0) then
+            write(*,*) 'NOTE: num_massive_neutrinos ignored, using specified hierarchy'
+        end if
     end if
     call Ini%Read('lmax_computed_cl',this%lmax_computed_cl)
     call Ini%Read('lmin_computed_cl',this%lmin_computed_cl)
