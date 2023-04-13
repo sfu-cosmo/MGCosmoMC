@@ -162,9 +162,9 @@
 
         else if ( MG_flag == 5) then
 
-	        call Ini%Read('test_flag', test_flag)
+	        call Ini%Read('muSigma_flag', muSigma_flag)
 
-	        if( test_flag== 1) then
+	        if( muSigma_flag== 1) then
 		        write(*,*) 'pure MG models'
                 call Ini%Read( 'pure_MG_flag', pure_MG_flag )
                 if ( pure_MG_flag == 1 ) then
@@ -186,7 +186,7 @@
 
                 MGDE_pert = Ini%Read_Logical('MGDE_pert',.false.)
 
-            else if(test_flag==2) then
+            else if(muSigma_flag==2) then
 		        write(*,*) 'alternative MG models'
                 
                 call Ini%Read( 'alt_MG_flag', alt_MG_flag )
@@ -199,7 +199,7 @@
                     stop 'Choose DE_model properly!'
                 end if
 
-            else if(test_flag==3) then
+            else if(muSigma_flag==3) then
                 
 		        write(*,*) 'standard QSA for all-matter case'
                 call Ini%Read( 'QSA_flag', QSA_flag )
@@ -216,7 +216,7 @@
                     stop 'Choose DE_model properly!'
                 end if
 
-            else if(test_flag==4) then
+            else if(muSigma_flag==4) then
                 write(*,*) 'reconstruction models'
 
                 call Ini%Read( 'DE_model', DE_model )
