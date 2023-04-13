@@ -161,7 +161,7 @@ The soft cut is obtained by setting Delta Chi^2 = 10. The shaded regions in the 
 ## 7. Authors List
 Main Developers:
 - [Zhuangfei Wang] Email: zhuangfei_wang@sfu.ca
-- [Alex Zucca] Email: azucca@dwavesys.com
+- [Alex Zucca] Email: alexzucca90@gmail.com
 
 Original Code Developers:
 * [Gong-Bo Zhao](http://icosmology.info)
