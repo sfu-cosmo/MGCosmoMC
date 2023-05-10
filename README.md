@@ -23,6 +23,11 @@ MGCosmoMC allows to set constraint on Modified Growth (MG) - Dark Energy (DE) sc
 ### Citing MGCosmoMC
 If you use MGCosmoMC for your scientific work, please cite the following papers:
 
+* *New MGCAMB tests of gravity with CosmoMC and Cobaya*\
+    Zhuangfei Wang, Seyed Hamidreza Mirpoorian, Levon Pogosian, Alessandra Silvestri, Gong-Bo Zhao\
+    [arXiv:2305.05667 [astro-ph.CO]](https://arxiv.org/abs/2305.05667)
+
+    
 * *MGCAMB with massive neutrinos and dynamical dark energy*   
     Alex Zucca, Levon Pogosian, Alessandra Silvestri, and Gong-Bo Zhao  
     [arXiv:1901.05956 [astro-ph.CO]](https://arxiv.org/abs/1901.05956)
@@ -56,11 +61,11 @@ Before running MGCosmoMC set your model parameters in [```params_CMB_MG.ini```](
 
 ```GRtrans ```  set the scale factor at which MG is switched on. We suggest to set it larger or equal than 0.001. 
 
-Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The cuts on DES 1YR dataset is described in Sect.[5](#5-des-1yr-dataset)
+Since in the MG formalism there is no prescription to build a non-linear P(k), we suggest to set the flag ``` use_nonlinear = F ```. To do so, some data requires a proper cut to eliminate the nonlinear scales. The cuts on DES 1YR dataset is described in Sec. [5](#5-des-1yr-dataset)
 
 
 ## 4. Installing Planck 2018
-MGCosmoMC couuld work with Planck 2018 likelihood, which needs to be installed separately in advance. Please use the Planck 2018 likelihood with MGCosmoMC by following the procedure illustrated in this Section.
+MGCosmoMC could work with Planck 2018 likelihood, which needs to be installed separately in advance. Please use the Planck 2018 likelihood with MGCosmoMC by following the procedure illustrated in this Section.
 
 In the following, ```/$$$``` is meant to be replaced by the path specific to your installation.
  
