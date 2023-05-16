@@ -98,7 +98,6 @@ s8h5*         \sigma_8/h^{0.5}
 rdragh*       r_{\rm drag} h #Mpc
 rmsdeflect*   \langle d^2\rangle^{1/2}  #rms lensing deflection in arcmin (2<L<=2000)
 zrei*         z_{\rm re}
-lgm_inv*      logm_{\star}^{-1}
 A*            10^9 A_s
 clamp*        10^9 A_s e^{-2\tau}   #parameter determining C_l amplitude
 DL40*         D_{40}   #L(L+1)C_L/2pi at L=40 in muK^2

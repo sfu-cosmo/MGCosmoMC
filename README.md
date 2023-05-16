@@ -104,7 +104,7 @@ make
 This will print some stuff on the screen, testing all the Planck likelihoods and any other likelihoods specified in the ```test_planck.ini``` and ```test.ini``` files. Then it will likely stop with some error message, e.g. 
 
 ```bash
-Test likelihoods done, total logLike, chi-eq =    2103.781   4207.563
+Test likelihoods done, total logLike, chi-eq =    2540.646   5081.292
 Expected likelihoods,  total logLike, chi-eq =    2625.485   5250.970
  ** Likelihoods do not match **
 ```
