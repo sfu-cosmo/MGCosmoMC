@@ -5,16 +5,20 @@ MGCosmoMC
 This is the official repository for the MGCosmoMC package. It implements the patch [MGCAMB](https://github.com/sfu-cosmo/MGCAMB) into the popular Markov Chain Monte Carlo engine [CosmoMC](https://github.com/cmbant/CosmoMC). This version is upgraded to be compatible with the latest CosmoMC(v1.3.2).
 
 ## Table of contents
-* [1. Introduction](#1-introduction)
-    * [Citing MGCosmoMC](#citing-mgcosmomc)
-* [2. How to install](#2-how-to-install)
-* [3. How to run](#3-how-to-run)
-* [4. Installing Planck 2018 ](#4-installing-planck-2018)
-* [5. DES 1YR dataset](#5-des-1yr-dataset)
-    * [Aggressive cut](#aggressive-cut)
-    * [Standard cut](#standard-cut)
-    * [Soft cut](#soft-cut)
-* [7. Authors List](#authors-list)
+- [MGCosmoMC](#mgcosmomc)
+  - [Modified Growth with CosmoMC](#modified-growth-with-cosmomc)
+  - [Table of contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+    - [Citing MGCosmoMC](#citing-mgcosmomc)
+  - [2. How to install](#2-how-to-install)
+  - [3. How to run](#3-how-to-run)
+  - [4. Installing Planck 2018](#4-installing-planck-2018)
+  - [5. DES 1YR dataset](#5-des-1yr-dataset)
+    - [Aggressive Cut](#aggressive-cut)
+    - [Standard Cut](#standard-cut)
+    - [Soft Cut](#soft-cut)
+  - [6. Known bugs](#6-known-bugs)
+  - [7. Authors List](#7-authors-list)
 
 
 ## 1. Introduction
@@ -161,6 +165,9 @@ The soft cut is obtained by setting Delta Chi^2 = 10. The shaded regions in the 
 <img src="img/m3soft.png" width="350" title="soft cut 3" />
 <img src="img/m4soft.png" width="350" title="soft cut 4" />
 </p>
+
+## 6. Known bugs
+- (**Fixed**) The reading issue of flag `muSigma_par` for DES paramterization. Thanks to Kushal Lodha.
 
 
 ## 7. Authors List
